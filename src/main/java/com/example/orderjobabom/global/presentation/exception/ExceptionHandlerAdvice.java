@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionHandlerAdvice {
 
     // 커스텀 예외
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<CustomResponse<?>> handleCustomException(CustomException e) {
+    @ExceptionHandler(FailException.class)
+    public ResponseEntity<CustomResponse<?>> handleCustomException(FailException e) {
 
         BaseErrorCode errorCode = e.getErrorCode();
         CustomResponse<?> response =

@@ -14,8 +14,17 @@ public enum GeneralErrorCode implements BaseErrorCode {
     NOT_FOUND_404(HttpStatus.BAD_REQUEST, "404", "요청 자원을 찾을 수 없습니다."),
     NOT_FOUND_500(HttpStatus.INTERNAL_SERVER_ERROR, "500", "서버 내부 오류입니다.");
 
-    private final HttpStatus status;
+    private final HttpStatus httpStatus;
     private final String code;
     private final String message;
 
+    @Override
+    public ErrorReasonDTO getReasonHttpStatus() {
+        return ErrorReasonDTO.builder()
+                .httpStatus(this.httpStatus)
+                .isSuccess(false)
+                .code(this.code)
+                .message(this.message)
+                .build();
+    }
 }
