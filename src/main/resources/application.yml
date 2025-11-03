@@ -1,20 +1,11 @@
----
 spring:
   config:
     activate:
       on-profile: local
-    import: optional:file:local.env[.properties]
+    import:
+      - optional:file:local.env[.properties]
+      - optional:file:prod.env[.properties]
 
----
-
-spring:
-  config:
-    activate:
-      on-profile: prod
-    import: optional:file:prod.env[.properties]
----
-
-spring:
   profiles:
     active: local
 
@@ -27,14 +18,31 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 100
-
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${keycloak.client-id}
+            client-secret: ${keycloak.client-secret}
+            authorization-grant-type: password
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          keycloak:
+            issuer-uri: https://keycloak6.sparta-project.xyz/realms/delivery
+      resourceserver:
+        jwt:
+          issuer-uri: https://keycloak6.sparta-project.xyz/realms/delivery
 
 
 # OPEN DOC API 설정
