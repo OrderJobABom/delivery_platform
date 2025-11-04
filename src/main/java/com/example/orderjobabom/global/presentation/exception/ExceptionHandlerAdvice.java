@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestControllerAdvice(annotations = RestControllerAdvice.class)
+@RestControllerAdvice
 @Slf4j
 public class ExceptionHandlerAdvice {
 
