@@ -4,13 +4,24 @@ package com.example.orderjobabom.store.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 1. 메뉴 생성은 매장에서 생성
+ *     - OWNER, MASTER, MANAGER 권한이 있는 경우
+ * 2. 메뉴 분류는 필수는 아님, 중복 분류는 안된다.
+ * 3. 매장의 삭제는 지난 주문 내역 및 메뉴를 유지하기 위해서 소프트 삭제만 허용
+ * 4. 삭제, 수정 권한은 OWNER(같은 상점 주인만 삭제), MASTER, MANAGER 권한이 있는 경우
+ * 5. 상점 분류의 추가, 삭제
+ * 6. 상점을 통해서만 상품을 만든다.
+ * 7. 사장님외에도 직원이 매장을 관리 할수 있다.
+ *      - 사장이 직원을 추가, 제거
+ */
+
 @ToString
 @Getter
 @Entity
-@Table(name = "p_store")
 @Access(AccessType.FIELD)
+@Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//public class Store extends BaseUserEntity {
 public class Store{
 
     @EmbeddedId

@@ -1,5 +1,6 @@
 package com.example.orderjobabom.store.domain;
 
+import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
