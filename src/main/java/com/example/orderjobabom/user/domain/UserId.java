@@ -6,16 +6,17 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.UUID;
 
+@ToString
 @Getter
 @Embeddable
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserId {
-
-    @Column(length = 50, name = "user_id")
+    @Column(length=45, name="user_id")
     private UUID id;
 
     public UserId(UUID id) {
@@ -25,6 +26,4 @@ public class UserId {
     public static UserId of(UUID id) {
         return new UserId(id);
     }
-
-
 }
