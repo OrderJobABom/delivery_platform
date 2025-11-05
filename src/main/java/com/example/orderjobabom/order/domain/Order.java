@@ -4,7 +4,7 @@ import com.example.orderjobabom.global.infrastructure.converter.PriceConverter;
 import com.example.orderjobabom.global.infrastructure.persistence.BaseEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
-import com.example.orderjobabom.order.domain.code.OrderErrorCode;
+import com.example.orderjobabom.order.domain.exception.OrderErrorCode;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.DeliveryRequestDTO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

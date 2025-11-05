@@ -1,11 +1,11 @@
 package com.example.orderjobabom.order.application.service.command;
 
 import com.example.orderjobabom.global.presentation.exception.FailException;
-import com.example.orderjobabom.menu.Item;
-import com.example.orderjobabom.menu.ItemId;
-import com.example.orderjobabom.menu.ItemRepository;
+import com.example.orderjobabom.menu.domain.Item;
+import com.example.orderjobabom.menu.domain.ItemId;
+import com.example.orderjobabom.menu.domain.ItemRepository;
 import com.example.orderjobabom.order.domain.*;
-import com.example.orderjobabom.order.domain.code.OrderErrorCode;
+import com.example.orderjobabom.order.domain.exception.OrderErrorCode;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.DeliveryRequestDTO;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderCreateRequestDTO;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderItemRequestDTO;

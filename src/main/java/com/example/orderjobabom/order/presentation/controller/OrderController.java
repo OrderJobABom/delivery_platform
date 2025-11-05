@@ -1,14 +1,12 @@
 package com.example.orderjobabom.order.presentation.controller;
 
 import com.example.orderjobabom.global.presentation.CustomResponse;
-import com.example.orderjobabom.order.domain.OrderId;
-import com.example.orderjobabom.order.domain.code.OrderSuccessCode;
+import com.example.orderjobabom.order.domain.exception.OrderSuccessCode;
 import com.example.orderjobabom.order.application.service.command.OrderCommandService;
 import com.example.orderjobabom.order.application.service.query.OrderQueryService;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderCancelRequestDTO;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderCreateRequestDTO;
 import com.example.orderjobabom.order.presentation.dto.responseDTO.OrderResponseDTO;
-import com.example.orderjobabom.user.domain.UserId;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
