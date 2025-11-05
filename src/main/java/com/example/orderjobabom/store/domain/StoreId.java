@@ -12,13 +12,18 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreId {
-    @Column(name="store_id", length = 60, nullable = false, updatable = false)
-    public UUID id;
+    @Column(length=45, name="store_id")
+    private UUID id;
 
-    public StoreId(UUID id) {
+    private StoreId(UUID id) {
         this.id = id;
     }
 
-    public static StoreId of() { return new StoreId(UUID.randomUUID()); }
-    public static StoreId of(UUID id) { return new StoreId(id); }
+    public static StoreId of() {
+        return StoreId.of(UUID.randomUUID());
+    }
+
+    public static StoreId of(UUID id) {
+        return new StoreId(id);
+    }
 }

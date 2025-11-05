@@ -1,8 +1,22 @@
 package com.example.orderjobabom.store.domain;
 
 //import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
+import com.example.orderjobabom.store.domain.service.StoreAddressService;
+import com.example.orderjobabom.store.domain.exception.CategoryNotFoundException;
+import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
+import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
+import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
+import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
+import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 
 /**
  * 1. 메뉴 생성은 매장에서 생성
@@ -15,129 +29,189 @@ import lombok.*;
  * 7. 사장님외에도 직원이 매장을 관리 할수 있다.
  *      - 사장이 직원을 추가, 제거
  */
-
 @ToString
 @Getter
 @Entity
 @Access(AccessType.FIELD)
-@Table(name = "P_STORE")
+@Table(name="P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Store{
+//public class Store extends BaseUserEntity {
+public class Store  {
 
     @EmbeddedId
     private StoreId id;
 
     @Embedded
-    private OwnerSnapshot owner;
+    private Owner owner;
+
+    @Convert(converter = StaffConverter.class)
+    private Set<Staff> staffs; // 직원들
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name="P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
+    @OrderColumn(name="category_idx")
+    private List<StoreCategory> categories;
+
+    @Column(length=100, nullable = false)
+    private String storeName;
+
+    @Column(length=45, nullable = false)
+    private String storeTel;
 
     @Embedded
     private StoreAddress address;
 
     @Embedded
-    private PhoneNumber phone;
-
-    @Embedded
-    private GeoLocation location;
-
-    @Embedded
-    private OperatingHours hours;
-
-    @Column(nullable = false, length = 80)
-    private String name;
-
-    @Column(nullable = false, length = 20)
-    private String businessNumber;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private Category category;
-
-    @Column(nullable = false)
-    private Double rate; // 0.0 ~ 5.0
+    private OperatingInfo operatingInfo;
 
     @Builder
-    private Store(StoreId id,
-                  OwnerSnapshot owner,
-                  StoreAddress address,
-                  PhoneNumber phone,
-                  GeoLocation location,
-                  OperatingHours hours,
-                  String name,
-                  String businessNumber,
-                  Category category,
-                  Double rate) {
-
-        this.id = (id == null ? StoreId.of() : id);
-
-        if (owner == null) throw new IllegalArgumentException("owner required");
-        if (address == null) throw new IllegalArgumentException("address required");
-        if (phone == null) throw new IllegalArgumentException("phone required");
-        if (location == null) throw new IllegalArgumentException("location required");
-        if (hours == null) throw new IllegalArgumentException("hours required");
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("name required");
-        if (businessNumber == null || businessNumber.isBlank()) throw new IllegalArgumentException("biz no required");
-        if (category == null) throw new IllegalArgumentException("category required");
-        if (rate == null || rate < 0 || rate > 5) throw new IllegalArgumentException("rate 0..5");
-
-        this.owner = owner;
-        this.address = address;
-        this.phone = phone;
-        this.location = location;
-        this.hours = hours;
-        this.name = name;
-        this.businessNumber = businessNumber;
-        this.category = category;
-        this.rate = rate;
+    public Store(StoreId id, String storeName, String storeTel, String address, LocalTime startHour, LocalTime endHour, List<DayOfWeek> weekdays, List<StoreCategory> categories, UserId userId, String userName, StoreAddressService addressService) {
+        this.id = Objects.requireNonNullElse(id, StoreId.of());
+        this.storeName = storeName;
+        this.storeTel = storeTel;
+        this.address = StoreAddress.of(address);
+        this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
+        this.owner = new Owner(userId, userName);
+        setCategories(categories);
     }
 
-    @PrePersist
-    private void prePersist() {
-        if (this.id == null) this.id = StoreId.of();
+    private void setCategories(List<StoreCategory> categories) {
+        if (categories == null || categories.isEmpty()) return;
+
+        this.categories = categories.stream().distinct().toList();
     }
 
-    // === 도메인 행위 ===
-    public void rename(String newName) {
-        if (newName == null || newName.isBlank()) throw new IllegalArgumentException("name required");
-        this.name = newName;
+
+    public void delete() {
+//        deletedAt = LocalDateTime.now();
     }
 
-    public void changeAddress(StoreAddress newAddress) {
-        if (newAddress == null) throw new IllegalArgumentException("address required");
-        this.address = newAddress;
+    /**
+     *  삭제, 수정 권한
+     */
+    public void isEditable(RoleCheck roleCheck) {
+        if (!roleCheck.check(this)) {
+            // 권한이 없는 경우
+            throw new StoreNotEditableException();
+        }
     }
 
-    public void changePhone(PhoneNumber newPhone) {
-        if (newPhone == null) throw new IllegalArgumentException("phone required");
-        this.phone = newPhone;
+    public void addCategory(Category category, boolean active) {
+        categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
+        categories.add(new StoreCategory(category, active));
+        categories = categories.stream().distinct().toList();
     }
 
-    public void relocate(GeoLocation newLocation) {
-        if (newLocation == null) throw new IllegalArgumentException("location required");
-        this.location = newLocation;
+
+    public void removeCategory(Category category) {
+        removeCategory(List.of(category));
     }
 
-    public void changeHours(OperatingHours newHours) {
-        if (newHours == null) throw new IllegalArgumentException("hours required");
-        this.hours = newHours;
+    public void removeCategory(List<Category> categories) {
+        if (this.categories == null || categories.isEmpty()) return;
+
+        this.categories = this.categories.stream().filter(c -> !categories.contains(c.getCategory())).toList();
     }
 
-    public void changeCategory(Category newCategory) {
-        if (newCategory == null) throw new IllegalArgumentException("category required");
-        this.category = newCategory;
+    public boolean categoryExists(Category category) {
+        return categories != null && categories.stream().anyMatch(c -> c.getCategory() == category);
     }
 
-    public void changeRate(Double newRate) {
-        if (newRate == null || newRate < 0 || newRate > 5) throw new IllegalArgumentException("rate 0..5");
-        this.rate = newRate;
-    }
-
-    // Soft delete: BaseEntity.deletedAt 사용
-//    public void softDelete() {
-//        if (this.deletedAt != null) return;
-//        this.deletedAt = java.time.LocalDateTime.now();
-//    }
+    // 상점 -> 상품 생성 TODO 머지 후 주석 풀기
+//    public Item createItem(Category category, Price price, String name, ItemStatus status, Stock stock, List<ItemOption> itemOptions) {
+//        // 카테고리가 실제로 등록되어 있는지 체크
+//        if (category != null && !categoryExists(category)) {
+//            throw new CategoryNotFoundException();
+//        }
 //
-//    public boolean isDeleted() {
-//        return this.deletedAt != null;
+//        return Item.builder()
+//                .storeId(id)
+//                .price(price)
+//                .name(name)
+//                .status(status)
+//                .stock(stock)
+//                .itemOptions(itemOptions)
+//                .build();
 //    }
+
+    /**
+     * 직원 추가
+     *  OWNER권한만 추가가능, 가능한 회원은 STAFF 권한이 있어야 한다.
+     * @param staffs
+     */
+    public void addStaff(Collection<Staff> staffs, OwnerRoleCheck roleCheck) {
+        if (!roleCheck.check(this, staffs)) {
+            throw new StaffNotEditableException();
+        }
+
+        this.staffs = Objects.requireNonNullElseGet(this.staffs, HashSet::new);
+        this.staffs.addAll(staffs);
+    }
+
+    public void addStaff(Staff staff, OwnerRoleCheck roleCheck) {
+        addStaff(List.of(staff), roleCheck);
+    }
+
+    /**
+     * 직원 제거
+     *
+     * @param staffs
+     */
+    public void removeStaff(Collection<Staff> staffs, OwnerRoleCheck roleCheck) {
+        if (!roleCheck.check(this, staffs)) {
+            throw new StaffNotEditableException();
+        }
+
+        this.staffs.removeAll(staffs);
+    }
+
+    public void removeStaff(Staff staff, OwnerRoleCheck roleCheck) {
+        removeStaff(List.of(staff), roleCheck);
+    }
+
+
+    public static void exists(StoreId id, StoreRepository repository) {
+        if (!repository.existsById(id)) {
+            throw new StoreNotFoundException();
+        }
+    }
+
+    /**
+     * 매장 일반 정보 수정
+     *
+     * @param storeName
+     * @param storeTel
+     */
+    public void changeInfo(String storeName, String storeTel) {
+        this.storeName = storeName;
+        this.storeTel = storeTel;
+    }
+
+    /**
+     * 매장 주소 변경, 위도 경도 정보도 함께 업데이트
+     * @param address
+     */
+    public void changeAddress(String address, StoreAddressService service) {
+        if (!StringUtils.hasText(address) || service == null) return;
+        List<Double> coords = service.getCoordinate(address);
+        this.address = new StoreAddress(address, coords.get(0), coords.get(1));
+    }
+
+    /**
+     * 매장 운영시간, 운영 요일
+     *
+     * @param startHour
+     * @param endHour
+     * @param weekdays
+     */
+    public void changeOperatingInfo(LocalTime startHour, LocalTime endHour, List<DayOfWeek> weekdays) {
+        // 등록이 가능한지 여부 체크
+        if (startHour != null && endHour != null && endHour.isBefore(startHour)) {
+            LocalTime tmp = endHour;
+            endHour = startHour;
+            startHour = tmp;
+        }
+
+        this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
+    }
 }
