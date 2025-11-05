@@ -1,14 +1,12 @@
-package com.example.orderjobabom.menu;
+package com.example.orderjobabom.menu.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
+@ToString
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,6 +18,10 @@ public class ItemId {
 
     public ItemId(UUID id) {
         this.id = id;
+    }
+
+    public static ItemId of() {
+        return ItemId.of(UUID.randomUUID());
     }
 
     public static ItemId of(UUID id) {
