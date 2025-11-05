@@ -1,19 +1,16 @@
 package com.example.orderjobabom.order.presentation.dto.requestDTO;
 
-import com.example.orderjobabom.global.infrastructure.persistence.Price;
-import com.example.orderjobabom.order.domain.DeliveryInfo;
-import com.example.orderjobabom.order.domain.Orderer;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Getter;
 
 import java.util.List;
 
-@Getter
 @Builder
-public class OrderCreateRequestDTO {
-
-    List<OrderItemRequestDTO> orderItemRequestList;
-    DeliveryInfo deliveryInfo;
-    Price payPrice;
-    Orderer orderer;
+public record OrderCreateRequestDTO(
+        @NotBlank List<OrderItemRequestDTO> orderItemRequestList,
+        @NotBlank String address,
+        @NotBlank String memo,
+        int payPrice,
+        String username
+        ) {
 }

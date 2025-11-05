@@ -54,13 +54,13 @@ class OrderCommandServiceImplTest {
 
         request = OrderCreateRequestDTO.builder()
                 .orderItemRequestList(List.of(OrderItemRequestDTO.builder()
-                        .itemId(ItemId.of(UUID.fromString("eebad6f5-7ea5-4091-9272-b1bacec129b6")))
+                        .itemId(ItemId.of(UUID.fromString("eebad6f5-7ea5-4091-9272-b1bacec129b6")).getId())
                         .price(15000)
                         .count(1)
                         .build()))
-                .deliveryInfo(new DeliveryInfo("서울시", "메모입니다."))
-                .payPrice(new Price(15000))
-                .orderer(new Orderer(id,"testName" ))
+                .address("서울시")
+                .memo("메모입니다")
+                .payPrice(15000)
                 .build();
     }
 

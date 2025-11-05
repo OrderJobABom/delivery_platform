@@ -1,16 +1,15 @@
 package com.example.orderjobabom.order.presentation.dto.requestDTO;
 
-import com.example.orderjobabom.global.infrastructure.persistence.Price;
-import com.example.orderjobabom.menu.ItemId;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Builder
 public class OrderItemRequestDTO {
 
-    private ItemId itemId;
+    private UUID itemId;
     private int price;
     private int count;
 }

@@ -2,6 +2,7 @@ package com.example.orderjobabom.order.application.service.command;
 
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.Item;
+import com.example.orderjobabom.menu.ItemId;
 import com.example.orderjobabom.menu.ItemRepository;
 import com.example.orderjobabom.order.domain.*;
 import com.example.orderjobabom.order.domain.code.OrderErrorCode;
@@ -9,9 +10,12 @@ import com.example.orderjobabom.order.presentation.dto.requestDTO.DeliveryReques
 import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderCreateRequestDTO;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderItemRequestDTO;
 import com.example.orderjobabom.order.presentation.dto.responseDTO.OrderResponseDTO;
+import com.example.orderjobabom.user.domain.UserId;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,16 +34,22 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     public OrderResponseDTO.OrderDetailsDTO createOrder(OrderCreateRequestDTO requestDTO) {
 
         // 배송 정보 생성
-        DeliveryInfo deliveryInfo = requestDTO.getDeliveryInfo();
+        DeliveryInfo deliveryInfo = new DeliveryInfo(requestDTO.address(), requestDTO.memo());
 
         // 요청 DTO의 OrderItems 기반으로 OrderItem 리스트 생성
-        List<OrderItem> orderItems = requestDTO.getOrderItemRequestList().stream()
+        List<OrderItem> orderItems = requestDTO.orderItemRequestList().stream()
                 .map(this::createOrderItem)
                 .toList();
-        log.info(orderItems.size() + " order items created");
+
+        Jwt jwt = (Jwt)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID ordererId = UUID.fromString(jwt.getSubject());
+        UserId userId = UserId.of(ordererId);
+        String username = requestDTO.username();
+
+        Orderer orderer = new Orderer(userId, username);
 
         // Order 생성
-        Order newOrder = Order.create(requestDTO.getOrderer(), deliveryInfo, orderItems);
+        Order newOrder = Order.create(orderer, deliveryInfo, orderItems);
 
         // 주문 저장
         Order saveOrder = orderRepository.save(newOrder);
@@ -49,7 +59,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     // Item 엔티티를 조회해서 OrderItem 객체 생성
     private OrderItem createOrderItem(OrderItemRequestDTO orderItemRequest) {
 
-        Item item = itemRepository.findById(orderItemRequest.getItemId())
+        Item item = itemRepository.findById(ItemId.of(orderItemRequest.getItemId()))
                 .orElseThrow(() -> new FailException(OrderErrorCode.ORDER_ITEM_NOT_FOUND));
 
 

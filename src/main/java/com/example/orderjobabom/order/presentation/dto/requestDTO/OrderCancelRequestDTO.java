@@ -1,9 +1,11 @@
 package com.example.orderjobabom.order.presentation.dto.requestDTO;
 
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
-@Getter
-public class OrderCancelRequestDTO {
+@Builder
+public record OrderCancelRequestDTO(
+        @NotBlank String ordererName
 
-
+) {
 }
