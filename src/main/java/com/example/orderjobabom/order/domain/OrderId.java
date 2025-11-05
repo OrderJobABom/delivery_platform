@@ -2,10 +2,7 @@ package com.example.orderjobabom.order.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -13,6 +10,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
+@ToString
 public class OrderId {
 
     @Column(length = 50, name = "order_id")
@@ -24,6 +22,10 @@ public class OrderId {
 
     public static OrderId of() {
         return new OrderId(UUID.randomUUID());
+    }
+
+    public static OrderId of(UUID id) {
+        return new OrderId(id);
     }
 
 }

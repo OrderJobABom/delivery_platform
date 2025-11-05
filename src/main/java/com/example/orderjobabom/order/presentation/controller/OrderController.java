@@ -48,8 +48,8 @@ public class OrderController {
 
     @GetMapping("/{userId}/{orderId}") // userId 임시
     public CustomResponse<?> getOrderDetail(
-            @PathVariable("userId") UserId userId,
-            @PathVariable("orderId") OrderId orderId
+            @PathVariable("userId") UUID userId,
+            @PathVariable("orderId") UUID orderId
     ) {
 
         OrderResponseDTO.OrderDetailsDTO orderDetail = orderQueryService.getOrderDetail(orderId);
@@ -58,7 +58,7 @@ public class OrderController {
 
     @PutMapping("{orderId}/cancel")
     public CustomResponse<?> cancelOrder(
-            @PathVariable("orderId") OrderId orderId,
+            @PathVariable("orderId") UUID orderId,
             @RequestBody OrderCancelRequestDTO orderCancelDTO
             ) {
 

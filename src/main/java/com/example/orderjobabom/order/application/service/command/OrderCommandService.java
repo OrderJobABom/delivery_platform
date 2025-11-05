@@ -16,5 +16,5 @@ public interface OrderCommandService {
     void coordinateDelivery(OrderId orderId, DeliveryRequestDTO deliveryRequestDTO);
 
     // 주문 취소
-    void cancelOrder(OrderId orderId);
+    void cancelOrder(UUID orderId);
 }

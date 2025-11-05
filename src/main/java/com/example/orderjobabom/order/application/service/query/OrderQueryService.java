@@ -17,7 +17,7 @@ public interface OrderQueryService {
     Page<OrderResponseDTO.OrderPreviewDTO> getOrderHistoryByDate(UUID userId, LocalDate start, LocalDate end, int page, int size);
 
     //주문 상세 조회
-    OrderResponseDTO.OrderDetailsDTO getOrderDetail(OrderId orderId);
+    OrderResponseDTO.OrderDetailsDTO getOrderDetail(UUID orderId);
 
 
 }

@@ -47,7 +47,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public OrderResponseDTO.OrderDetailsDTO getOrderDetail(OrderId orderId) {
+    public OrderResponseDTO.OrderDetailsDTO getOrderDetail(UUID detailOrderId) {
+
+        OrderId orderId = OrderId.of(detailOrderId);
 
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new FailException(OrderErrorCode.ORDER_ITEM_NOT_FOUND));
         return OrderResponseDTO.OrderDetailsDTO.from(order);

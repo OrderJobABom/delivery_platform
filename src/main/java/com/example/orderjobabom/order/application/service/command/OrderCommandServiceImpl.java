@@ -85,9 +85,9 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     }
 
     @Override
-    public void cancelOrder(OrderId orderId) {
+    public void cancelOrder(UUID orderId) {
 
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new FailException(OrderErrorCode.ORDER_NOT_FOUND));
+        Order order = orderRepository.findById(OrderId.of(orderId)).orElseThrow(() -> new FailException(OrderErrorCode.ORDER_NOT_FOUND));
         order.cancel();
     }
 }
