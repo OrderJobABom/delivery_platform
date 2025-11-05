@@ -1,30 +1,27 @@
 package com.example.orderjobabom.store.domain;
 
-//import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
-import com.example.orderjobabom.store.domain.service.StoreAddressService;
-import com.example.orderjobabom.store.domain.exception.CategoryNotFoundException;
-import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
-import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
-import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
-import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
-import com.example.orderjobabom.store.domain.StoreRepository;
-import com.example.orderjobabom.user.domain.UserId;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.*;
+import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
 import com.example.orderjobabom.menu.presentation.dto.request.UpdateItemRequestDTO;
+import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
+import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
+import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
+import com.example.orderjobabom.store.domain.service.StoreAddressService;
+import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
+import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.util.StringUtils;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.List;
 
 @Getter
 @Entity
@@ -99,16 +96,10 @@ public class Store {
 
     // Item 생성
     public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions) {
-
-    public void removeCategory(Category category) {
-        removeCategory(List.of(category));
-    }
         if (category != null && !categoryExists(category)) {
             throw new FailException(StoreErrorCode.CATEGORY_NOT_FOUND);
         }
 
-    public void removeCategory(List<Category> categories) {
-        if (this.categories == null || categories.isEmpty()) return;
         return Item.builder()
                 .storeId(id)
                 .category(category)
@@ -118,6 +109,16 @@ public class Store {
                 .stock(stock)
                 .itemOptions(itemOptions)
                 .build();
+    }
+
+    public void removeCategory(Category category) {
+        removeCategory(List.of(category));
+    }
+
+
+    public void removeCategory(List<Category> categories) {
+        if (this.categories == null || categories.isEmpty()) return;
+
 
         this.categories = this.categories.stream().filter(c -> !categories.contains(c.getCategory())).toList();
     }
@@ -125,8 +126,6 @@ public class Store {
     public boolean categoryExists(Category category) {
         return categories != null && categories.stream().anyMatch(c -> c.getCategory() == category);
     }
-
-
 
     /**
      * 직원 추가
@@ -155,7 +154,6 @@ public class Store {
         if (!roleCheck.check(this, staffs)) {
             throw new StaffNotEditableException();
         }
-        return category != null && categories.stream().anyMatch(ca -> ca.getCategory() == category);
 
         this.staffs.removeAll(staffs);
     }
@@ -163,7 +161,6 @@ public class Store {
     public void removeStaff(Staff staff, OwnerRoleCheck roleCheck) {
         removeStaff(List.of(staff), roleCheck);
     }
-    public void updateItem(UpdateItemRequestDTO dto) {
 
 
     public static void exists(StoreId id, StoreRepository repository) {
@@ -210,4 +207,14 @@ public class Store {
 
         this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
     }
+
+    // 상품 수정
+    public Item updateItem(Item item, UpdateItemRequestDTO dto) {
+
+        if(!item.getStoreId().equals(id)) {
+            throw new FailException(ItemErrorCode.ITEM_NOT_BELONG);
+        }
+        return item.updateItem(dto);
+    }
+
 }

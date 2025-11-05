@@ -141,14 +141,14 @@ public class Item extends BaseEntity {
     }
 
     // 상품 수정
-    public void updateItem(UpdateItemRequestDTO itemRequestDTO, ItemRepository itemRepository) {
-
-        exists(ItemId.of(itemRequestDTO.itemId()), itemRepository);
+    public Item updateItem(UpdateItemRequestDTO itemRequestDTO) {
 
         this.category = itemRequestDTO.category();
         this.price = itemRequestDTO.price();
         this.name = itemRequestDTO.name();
         this.stock = itemRequestDTO.stock();
         this.itemOptions = itemRequestDTO.itemOptions();
+
+        return this;
     }
 }
