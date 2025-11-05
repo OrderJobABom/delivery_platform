@@ -6,17 +6,16 @@ import lombok.*;
 
 import java.util.UUID;
 
-@Embeddable
 @ToString
 @Getter
+@Embeddable
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreId {
-
-    @Column(length = 50, name = "store_id")
+    @Column(length=45, name="store_id")
     private UUID id;
 
-    public StoreId(UUID id) {
+    private StoreId(UUID id) {
         this.id = id;
     }
 
@@ -28,5 +27,3 @@ public class StoreId {
         return new StoreId(id);
     }
 }
-
-

@@ -4,21 +4,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
 
+@ToString
 @Getter
 @Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreCategory {
-
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(length = 30, nullable = false)
     private Category category;
 
     private boolean active;
@@ -27,11 +24,10 @@ public class StoreCategory {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         StoreCategory that = (StoreCategory) o;
-        return active == that.active && category == that.category;
+        return category.equals(that.category);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(category);
-    }
+    public int hashCode(){ return Objects.hashCode(category); }
+
 }
