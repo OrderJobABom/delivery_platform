@@ -1,6 +1,6 @@
 package com.example.orderjobabom.store.presentation.dto;
 
-public record ItemOptionRequset (
+public record ItemOptionRequest(
         String optionName,
         Integer addPrice
 ){}
