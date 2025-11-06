@@ -1,4 +1,4 @@
-package com.example.orderjobabom.menu;
+package com.example.orderjobabom.menu.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

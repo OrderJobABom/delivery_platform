@@ -1,4 +1,4 @@
-package com.example.orderjobabom.order.domain.code;
+package com.example.orderjobabom.order.domain.exception;
 
 import com.example.orderjobabom.global.presentation.error.BaseErrorCode;
 import com.example.orderjobabom.global.presentation.error.ErrorReasonDTO;

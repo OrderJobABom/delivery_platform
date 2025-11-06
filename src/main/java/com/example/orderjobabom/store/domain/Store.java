@@ -2,43 +2,39 @@ package com.example.orderjobabom.store.domain;
 
 //import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
 
+import com.example.orderjobabom.global.infrastructure.persistence.Price;
+import com.example.orderjobabom.global.presentation.exception.FailException;
+import com.example.orderjobabom.menu.domain.*;
+import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
 import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
 import com.example.orderjobabom.store.domain.service.StoreAddressService;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-/**
- * 1. 메뉴 생성은 매장에서 생성
- *     - OWNER, MASTER, MANAGER 권한이 있는 경우
- * 2. 메뉴 분류는 필수는 아님, 중복 분류는 안된다.
- * 3. 매장의 삭제는 지난 주문 내역 및 메뉴를 유지하기 위해서 소프트 삭제만 허용
- * 4. 삭제, 수정 권한은 OWNER(같은 상점 주인만 삭제), MASTER, MANAGER 권한이 있는 경우
- * 5. 상점 분류의 추가, 삭제
- * 6. 상점을 통해서만 상품을 만든다.
- * 7. 사장님외에도 직원이 매장을 관리 할수 있다.
- *      - 사장이 직원을 추가, 제거
- */
-@ToString
 @Getter
 @Entity
 @Access(AccessType.FIELD)
-@Table(name="P_STORE")
+@Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//public class Store extends BaseUserEntity {
-public class Store  {
+@Slf4j
+public class Store {
 
     @EmbeddedId
     private StoreId id;
 
-    /** 사장님 ID */
     @Embedded
     private Owner owner;
 
@@ -106,13 +102,31 @@ public class Store  {
         categories = categories.stream().distinct().toList();
     }
 
+    // Item 생성
+    public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions) {
+        if (category != null && !categoryExists(category)) {
+            throw new FailException(StoreErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        return Item.builder()
+                .storeId(id)
+                .category(category)
+                .status(itemStatus)
+                .price(price)
+                .name(name)
+                .stock(stock)
+                .itemOptions(itemOptions)
+                .build();
+    }
 
     public void removeCategory(Category category) {
         removeCategory(List.of(category));
     }
 
+
     public void removeCategory(List<Category> categories) {
         if (this.categories == null || categories.isEmpty()) return;
+
 
         this.categories = this.categories.stream().filter(c -> !categories.contains(c.getCategory())).toList();
     }
@@ -120,23 +134,6 @@ public class Store  {
     public boolean categoryExists(Category category) {
         return categories != null && categories.stream().anyMatch(c -> c.getCategory() == category);
     }
-
-    // 상점 -> 상품 생성 TODO 머지 후 주석 풀기
-//    public Item createItem(Category category, Price price, String name, ItemStatus status, Stock stock, List<ItemOption> itemOptions) {
-//        // 카테고리가 실제로 등록되어 있는지 체크
-//        if (category != null && !categoryExists(category)) {
-//            throw new CategoryNotFoundException();
-//        }
-//
-//        return Item.builder()
-//                .storeId(id)
-//                .price(price)
-//                .name(name)
-//                .status(status)
-//                .stock(stock)
-//                .itemOptions(itemOptions)
-//                .build();
-//    }
 
     /**
      * 직원 추가
@@ -218,4 +215,14 @@ public class Store  {
 
         this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
     }
+
+    // 상품 수정
+    public Item updateItem(Item item, ItemRequest dto) {
+
+        if(!item.getStoreId().equals(id)) {
+            throw new FailException(ItemErrorCode.ITEM_NOT_BELONG);
+        }
+        return item.updateItem(dto);
+    }
+
 }

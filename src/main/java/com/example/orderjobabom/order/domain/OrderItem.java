@@ -2,7 +2,7 @@ package com.example.orderjobabom.order.domain;
 
 import com.example.orderjobabom.global.infrastructure.converter.PriceConverter;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
-import com.example.orderjobabom.menu.ItemId;
+import com.example.orderjobabom.menu.domain.ItemId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
