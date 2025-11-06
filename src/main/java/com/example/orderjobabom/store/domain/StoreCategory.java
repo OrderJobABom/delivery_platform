@@ -21,8 +21,8 @@ public class StoreCategory {
     private boolean active;
 
     @Override
-    public boolean equals(Object o){
-        if( o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
         StoreCategory that = (StoreCategory) o;
         return category.equals(that.category);
     }
