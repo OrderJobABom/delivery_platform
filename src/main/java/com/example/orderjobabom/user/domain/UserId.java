@@ -2,10 +2,7 @@ package com.example.orderjobabom.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -13,6 +10,7 @@ import java.util.UUID;
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class UserId {
     @Column(length=45, name="user_id")
     private UUID id;
