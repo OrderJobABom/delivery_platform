@@ -4,7 +4,8 @@
 //
 //import java.util.List;
 //
-//public interface StoreDetailsRepository  {
+//public interface StoreDetailsRepository {
 //    Store findById(StoreId storeId);
 //    List<Store> findAll(StoreSearch search, int page, int size);
 //}
+//
