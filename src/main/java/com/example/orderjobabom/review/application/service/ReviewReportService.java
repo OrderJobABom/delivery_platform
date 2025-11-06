@@ -53,9 +53,10 @@ public class ReviewReportService {
             }
 
             // 사장님이 자기 답글 신고 불가
-            Store store = storeRepository.findById(new StoreId(review.getStore().getId()))
+            Store store = storeRepository.findById(StoreId.of(review.getStore().getId()))
                     .orElseThrow(() -> new IllegalStateException("가게 정보를 찾을 수 없습니다."));
-            if (store.getOwnerId().equals(reporterId)) {
+
+            if (store.getOwner().getId().getId().equals(reporterId.getId())) {
                 throw new ReplySelfReportForbiddenException();
             }
         }

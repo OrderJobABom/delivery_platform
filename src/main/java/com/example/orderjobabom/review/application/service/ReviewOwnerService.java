@@ -81,12 +81,12 @@ public class ReviewOwnerService {
         Review review = reviewRepository.findById(new ReviewId(reviewId))
                 .orElseThrow(ReviewNotFoundException::new);
 
-        // StoreSummary에서 id 추출 후 StoreId로 감싸서 조회
-        Store store = storeRepository.findById(new StoreId(review.getStore().getId()))
+        // 사장님의 가게 찾기
+        Store store = storeRepository.findByOwnerId(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("가게 정보를 찾을 수 없습니다."));
 
-        // 본인 가게의 리뷰인지 확인
-        if (!store.getOwnerId().getId().equals(ownerId.getId())) {
+        // 해당 리뷰가 그 가게의 리뷰인지 확인
+        if (!store.getId().getId().equals(review.getStore().getId())) {
             throw new ReviewAccessDeniedException();
         }
 

@@ -39,7 +39,7 @@ public class ExceptionHandlerAdvice {
 
         ErrorReasonDTO dto = GeneralErrorCode.INTERNAL_SERVER_500.getReasonHttpStatus();
         log.error("Exception : [{}] , Message : [{}]", e.getClass().getSimpleName(), e.getMessage());
-
+        e.printStackTrace();
         String failMessage = e.getClass().getSimpleName() + " " + e.getMessage();
 
         return ResponseEntity.status(dto.getHttpStatus()).body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), failMessage));

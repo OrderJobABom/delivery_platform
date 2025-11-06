@@ -55,9 +55,11 @@ public class ReviewController {
         );
 
         // StoreSummary 생성 (storeId로 조회)
-        Store store = storeRepository.findById(new StoreId(request.storeId()))
+        Store store = storeRepository.findById(StoreId.of(request.storeId()))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매장입니다."));
+
         StoreSummary storeSummary = StoreSummary.of(store.getId().getId(), store.getStoreName());
+
 
         // 리뷰 생성 서비스 호출
         ReviewId reviewId = createService.create(
@@ -65,7 +67,7 @@ public class ReviewController {
                 reviewer.getId(),
                 reviewer.getName(),
                 reviewer.getEmail(),
-                new StoreId(request.storeId()),
+                StoreId.of(request.storeId()),
                 new Rating(request.rating()),
                 request.content()
         );

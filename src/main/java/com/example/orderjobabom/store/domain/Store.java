@@ -1,20 +1,17 @@
 package com.example.orderjobabom.store.domain;
 
 //import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
-import com.example.orderjobabom.store.domain.service.StoreAddressService;
-import com.example.orderjobabom.store.domain.exception.CategoryNotFoundException;
+
 import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
-import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
-import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.store.domain.service.StoreAddressService;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -45,8 +42,8 @@ public class Store  {
     @Embedded
     private Owner owner;
 
-    @Convert(converter = StaffConverter.class)
-    private Set<Staff> staffs; // 직원들
+    @Transient
+    private Set<Staff> staffs;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
@@ -66,8 +63,8 @@ public class Store  {
     private OperatingInfo operatingInfo;
 
     /** 매장 평균 평점 */
-    @Column(name = "average_rating", nullable = true)
-    private double averageRating = 0.0;
+    @Column(name = "average_rating")
+    private Double averageRating;
 
 
     // ====== 빌더 생성자 ======

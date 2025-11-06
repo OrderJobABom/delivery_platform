@@ -24,7 +24,7 @@ public class ReviewPolicy {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
 
-        if (!order.getUserId().getId().equals(currentUserId)) {
+        if (!order.getOrderer().getId().getId().equals(currentUserId)) {
             throw new ReviewNotEditableException();
         }
 
