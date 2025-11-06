@@ -14,6 +14,7 @@ import com.example.orderjobabom.store.domain.StoreRepository;
 import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,6 +25,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StoreItemCreateService {
 
     private final StoreRepository storeRepository;

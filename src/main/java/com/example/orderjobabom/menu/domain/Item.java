@@ -6,9 +6,9 @@ import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
 import com.example.orderjobabom.menu.infrastructure.persistence.converter.StockConverter;
-import com.example.orderjobabom.menu.presentation.dto.request.UpdateItemRequestDTO;
 import com.example.orderjobabom.store.domain.Category;
 import com.example.orderjobabom.store.domain.StoreId;
+import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -60,6 +60,8 @@ public class Item extends BaseEntity {
 
     @Transient
     private boolean outOfStock; // 품절 상태 확인
+
+    private boolean active;
 
     @Builder
     public Item(StoreId storeId, ItemId itemId, Category category, List<ItemOption> itemOptions, Price price, String name, ItemStatus status, Stock stock) {
@@ -141,14 +143,27 @@ public class Item extends BaseEntity {
     }
 
     // 상품 수정
-    public Item updateItem(UpdateItemRequestDTO itemRequestDTO) {
+    public Item updateItem(ItemRequest itemRequestDTO) {
 
-        this.category = itemRequestDTO.category();
-        this.price = itemRequestDTO.price();
+        this.price = new Price(itemRequestDTO.price());
         this.name = itemRequestDTO.name();
-        this.stock = itemRequestDTO.stock();
-        this.itemOptions = itemRequestDTO.itemOptions();
+        this.itemStatus = itemRequestDTO.status();
+        this.category = itemRequestDTO.category();
+        this.name = itemRequestDTO.name();
+        this.stock = new Stock(itemRequestDTO.stock());
+        this.outOfStock = (this.stock.getValue() == 0);
+        this.itemOptions.clear();
+
+        if (itemRequestDTO.itemOptions() != null && !itemRequestDTO.itemOptions().isEmpty()) {
+            List<ItemOption> newItemOptions = itemRequestDTO.itemOptions().stream().map(op -> new ItemOption(op.optionName(), new Price(toInt(op.addPrice())))).toList();
+            this.itemOptions.addAll(newItemOptions);
+        }
 
         return this;
+
+    }
+
+    private int toInt(Integer num) {
+        return num == null ? 0 : num;
     }
 }

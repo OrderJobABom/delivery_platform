@@ -4,19 +4,20 @@ import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.*;
 import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
-import com.example.orderjobabom.menu.presentation.dto.request.UpdateItemRequestDTO;
 import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
 import com.example.orderjobabom.store.domain.service.StoreAddressService;
 import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
+import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
@@ -28,6 +29,7 @@ import java.util.*;
 @Access(AccessType.FIELD)
 @Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class Store {
 
     @EmbeddedId
@@ -209,7 +211,7 @@ public class Store {
     }
 
     // 상품 수정
-    public Item updateItem(Item item, UpdateItemRequestDTO dto) {
+    public Item updateItem(Item item, ItemRequest dto) {
 
         if(!item.getStoreId().equals(id)) {
             throw new FailException(ItemErrorCode.ITEM_NOT_BELONG);
