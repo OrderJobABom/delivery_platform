@@ -6,6 +6,7 @@ import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.order.domain.exception.OrderErrorCode;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.DeliveryRequestDTO;
+import com.example.orderjobabom.store.domain.StoreId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,6 +25,13 @@ public class Order extends BaseEntity {
 
     @EmbeddedId
     private OrderId id;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "id", column = @Column(nullable = false))
+    })
+    private StoreId storeId;
+
 
     @Embedded
     private Orderer orderer;
