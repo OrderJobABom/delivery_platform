@@ -30,8 +30,8 @@ spring:
       client:
         registration:
           keycloak:
-            client-id: ${keycloak.client-id}
-            client-secret: ${keycloak.client-secret}
+            client-id: ${KEYCLOAK.CLIENT_ID}
+            client-secret: ${KEYCLOAK.CLIENT_SECRET}
             authorization-grant-type: password
             scope:
               - openid

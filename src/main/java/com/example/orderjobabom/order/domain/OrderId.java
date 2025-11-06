@@ -6,13 +6,14 @@ import lombok.*;
 
 import java.util.UUID;
 
-@ToString
-@Getter
 @Embeddable
-@EqualsAndHashCode
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
+@ToString
 public class OrderId {
-    @Column(length=45, name="order_id")
+
+    @Column(length = 50, name = "order_id")
     private UUID id;
 
     public OrderId(UUID id) {
@@ -20,7 +21,7 @@ public class OrderId {
     }
 
     public static OrderId of() {
-        return OrderId.of(UUID.randomUUID());
+        return new OrderId(UUID.randomUUID());
     }
 
     public static OrderId of(UUID id) {

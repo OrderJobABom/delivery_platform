@@ -1,4 +1,4 @@
-package com.example.orderjobabom.user.domain;
+package com.example.orderjobabom.menu;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -6,24 +6,23 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.UUID;
 
-@ToString
-@Getter
 @Embeddable
-@EqualsAndHashCode
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserId {
-    @Column(length=45, name="user_id")
+@EqualsAndHashCode
+public class ItemId {
+
+    @Column(name = "item_id")
     private UUID id;
 
-    public UserId(UUID id) {
+    public ItemId(UUID id) {
         this.id = id;
     }
 
-    public static UserId of(UUID id) {
-        return new UserId(id);
+    public static ItemId of(UUID id) {
+        return new ItemId(id);
     }
 }
