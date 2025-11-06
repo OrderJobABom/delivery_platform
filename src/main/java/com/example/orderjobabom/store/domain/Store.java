@@ -1,8 +1,12 @@
 package com.example.orderjobabom.store.domain;
 
+import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
-import com.example.orderjobabom.menu.domain.*;
+import com.example.orderjobabom.menu.domain.Item;
+import com.example.orderjobabom.menu.domain.ItemOption;
+import com.example.orderjobabom.menu.domain.ItemStatus;
+import com.example.orderjobabom.menu.domain.Stock;
 import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
 import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
@@ -13,24 +17,24 @@ import com.example.orderjobabom.store.infrastructure.persistence.converter.Staff
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@ToString
 @Getter
 @Entity
 @Access(AccessType.FIELD)
 @Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class Store {
+public class Store extends BaseUserEntity {
 
     @EmbeddedId
     private StoreId id;
@@ -63,10 +67,12 @@ public class Store {
         this.id = Objects.requireNonNullElse(id, StoreId.of());
         this.storeName = storeName;
         this.storeTel = storeTel;
-        this.address = StoreAddress.of(address);
         this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
         this.owner = new Owner(userId, userName);
         setCategories(categories);
+
+        List<Double> coords = addressService.getCoordinate(address); // 주소 -> 좌표
+        this.address = new StoreAddress(address, coords.get(0), coords.get(1));
     }
 
     private void setCategories(List<StoreCategory> categories) {
@@ -77,7 +83,7 @@ public class Store {
 
 
     public void delete() {
-//        deletedAt = LocalDateTime.now();
+        deletedAt = LocalDateTime.now();
     }
 
     /**
@@ -90,12 +96,16 @@ public class Store {
         }
     }
 
+
     public void addCategory(Category category, boolean active) {
-        categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
+        categories = new ArrayList<>(Objects.requireNonNullElseGet(categories, ArrayList::new));
         categories.add(new StoreCategory(category, active));
-        categories = categories.stream().distinct().toList();
+        categories = categories.stream().distinct().collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public void emptyCategory() {
+        categories = new ArrayList<>();
+    }
     // Item 생성
     public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions) {
         if (category != null && !categoryExists(category)) {

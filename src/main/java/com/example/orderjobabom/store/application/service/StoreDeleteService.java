@@ -19,7 +19,6 @@ public class StoreDeleteService {
         StoreId storeId = StoreId.of(id);
         Store.exists(storeId, repository);
 
-
         Store store = detailsRepository.findById(storeId);
         store.isEditable(roleCheck);
 

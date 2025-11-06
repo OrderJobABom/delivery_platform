@@ -62,3 +62,11 @@ springdoc:
     - /v1/**
   cache:
     disabled: true
+
+keycloak:
+  server-url: https://keycloak6.sparta-project.xyz
+  realm: codefactory
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  admin-username: ${KEYCLOAK_ADMIN_USERNAME}
+  admin-password: ${KEYCLOAK_ADMIN_PASSWORD}

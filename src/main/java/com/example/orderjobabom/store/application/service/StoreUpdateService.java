@@ -1,13 +1,11 @@
 package com.example.orderjobabom.store.application.service;
 
-import com.example.orderjobabom.store.domain.RoleCheck;
-import com.example.orderjobabom.store.domain.Store;
-import com.example.orderjobabom.store.domain.StoreDetailsRepository;
-import com.example.orderjobabom.store.domain.StoreId;
+import com.example.orderjobabom.store.domain.*;
 import com.example.orderjobabom.store.domain.service.StoreAddressService;
-import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.store.presentation.dto.CategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -16,6 +14,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class StoreUpdateService {
 
     private final RoleCheck roleCheck;
@@ -24,11 +23,13 @@ public class StoreUpdateService {
     private final StoreAddressService addressService;
 
     // 상점 일반 정보 수정
-    public void updateInfo(UUID id, String storeName, String storeTel){
+    public void updateInfo(UUID id, String storeName, String storeTel, List<CategoryDto> categories) {
         Store store = validateAndGet(id);;
 
         store.changeInfo(storeName, storeTel);
 
+        store.emptyCategory();
+        categories.forEach(c -> store.addCategory(c.category(), c.active()));
         repository.save(store);
     }
 
@@ -49,7 +50,6 @@ public class StoreUpdateService {
         Store.exists(storeId, repository);
 
         Store store = detailsRepository.findById(storeId);
-
         store.isEditable(roleCheck);
 
         return store;

@@ -22,6 +22,7 @@ public class SecurityConfig {
         http.csrf(c -> c.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/v1/user/profile/**", "/v1/user/password/**", "/v1/user/role/**").hasRole("USER")
+                        .requestMatchers("/v1/owner/**").hasRole("OWNER")
                         .anyRequest().permitAll())
                 .oauth2Login(c -> c.disable())
                 .oauth2ResourceServer(c -> c

@@ -35,7 +35,6 @@ public class ExceptionHandlerAdvice {
     // 일반 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomResponse<?>> handleException(Exception e) {
-
         ErrorReasonDTO dto = GeneralErrorCode.INTERNAL_SERVER_500.getReasonHttpStatus();
         log.error("Exception : [{}] , Message : [{}]", e.getClass().getSimpleName(), e.getMessage());
 
