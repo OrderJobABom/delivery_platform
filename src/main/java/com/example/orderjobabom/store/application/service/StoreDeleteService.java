@@ -10,6 +10,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class StoreDeleteService {
+
     private final StoreDetailsRepository detailsRepository;
     private final StoreRepository repository;
     private final RoleCheck roleCheck;

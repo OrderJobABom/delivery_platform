@@ -1,8 +1,12 @@
 package com.example.orderjobabom.store.domain;
 
+import com.example.orderjobabom.global.infrastructure.persistence.BaseEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
-import com.example.orderjobabom.menu.domain.*;
+import com.example.orderjobabom.menu.domain.Item;
+import com.example.orderjobabom.menu.domain.ItemOption;
+import com.example.orderjobabom.menu.domain.ItemStatus;
+import com.example.orderjobabom.menu.domain.Stock;
 import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
 import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
@@ -30,7 +34,7 @@ import java.util.*;
 @Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class Store {
+public class Store extends BaseEntity {
 
     @EmbeddedId
     private StoreId id;
