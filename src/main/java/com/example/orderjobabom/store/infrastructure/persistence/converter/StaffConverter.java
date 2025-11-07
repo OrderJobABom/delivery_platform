@@ -6,6 +6,7 @@ import jakarta.persistence.AttributeConverter;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,10 +23,24 @@ public class StaffConverter implements AttributeConverter<Set<Staff>, String> {
 
     @Override
     public Set<Staff> convertToEntityAttribute(String dbData) {
-        return StringUtils.hasText(dbData)
-                ? Arrays.stream(dbData.split(","))
-                    .map(s->new Staff(UserId.of(UUID.fromString(s))))
-                    .collect(Collectors.toSet())
-                : null;
+        if (dbData == null || dbData.isBlank()) {
+            return new HashSet<>(); // null-safe 반환
+        }
+
+        return Arrays.stream(dbData.split(","))
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .map(s -> {
+                    try {
+                        // UUID 형식인 경우에만 Staff 생성
+                        return new Staff(UserId.of(UUID.fromString(s)));
+                    } catch (IllegalArgumentException e) {
+                        // 이름("김철수") 같은 UUID 아님 → 무시
+                        return null;
+                    }
+                })
+                .filter(s -> s != null)
+                .collect(Collectors.toSet());
     }
+
 }

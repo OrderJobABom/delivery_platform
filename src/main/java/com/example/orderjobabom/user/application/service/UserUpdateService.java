@@ -30,10 +30,10 @@ public class UserUpdateService {
      * 회원 정보 변경 (이메일, 이름, 전화번호 등)
      */
     public void update(UUID userId, UserUpdate dto) {
-        // 1️⃣ 현재 사용자 정보 조회
+        // 현재 사용자 정보 조회
         UserRepresentation user = getUserProfile(userId);
 
-        // 2️⃣ 수정 가능한 필드들 갱신
+        // 수정 가능한 필드들 갱신
         if (StringUtils.hasText(dto.firstName())) {
             user.setFirstName(dto.firstName());
         }
@@ -44,17 +44,17 @@ public class UserUpdateService {
             user.setEmail(dto.email());
         }
 
-        // 3️⃣ attributes (ex. mobile)
+        // attributes (ex. mobile)
         Map<String, List<String>> attributes =
                 Objects.requireNonNullElseGet(user.getAttributes(), HashMap::new);
 
-        if (StringUtils.hasText(dto.mobile())) {
-            attributes.put("mobile", List.of(dto.mobile()));
+        if (StringUtils.hasText(dto.phone())) {
+            attributes.put("phone", List.of(dto.phone()));
         }
 
         user.setAttributes(attributes);
 
-        // 4️⃣ Keycloak에 업데이트 반영
+        // Keycloak에 업데이트 반영
         keycloak.realm(properties.getRealm())
                 .users()
                 .get(userId.toString())
