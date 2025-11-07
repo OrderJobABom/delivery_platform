@@ -1,14 +1,4 @@
 spring:
-  config:
-    activate:
-      on-profile: local
-    import:
-      - optional:file:local.env[.properties]
-      - optional:file:prod.env[.properties]
-
-  profiles:
-    active: local
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
