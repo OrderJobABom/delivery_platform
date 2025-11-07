@@ -3,6 +3,7 @@ package com.example.orderjobabom.store.application.service;
 import com.example.orderjobabom.menu.domain.ItemStatus;
 import com.example.orderjobabom.store.application.service.dto.ItemDto;
 import com.example.orderjobabom.store.domain.*;
+import com.example.orderjobabom.store.domain.dto.StoreCreateDto;
 import com.example.orderjobabom.store.presentation.dto.CategoryDto;
 import com.example.orderjobabom.store.presentation.dto.ItemOptionRequest;
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.time.DayOfWeek.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class StoreServiceTest {
@@ -41,6 +42,8 @@ public class StoreServiceTest {
 
     @Autowired
     StoreRepository repository;
+    @Autowired
+    private StoreDeleteService storeDeleteService;
 
     @BeforeEach
     void init() {
@@ -58,16 +61,18 @@ public class StoreServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("상점 등록 테스트")
+    @DisplayName("서비스: 매장 생성")
     @MockUser(roles = "OWNER")
-    void createStoreTest() {
+    void createStore() {
+        StoreCreateDto created = createService.create(request);
+        StoreId storeId = created.storeId();
 
-        assertDoesNotThrow(() -> {
-            StoreId storeId = createService.create(request);
-
-            Store store = repository.findById(storeId).orElseThrow();
-            System.out.println(store);
-        });
+        Store store = repository.findById(storeId).orElseThrow();
+        assertEquals("테스트 매장", store.getStoreName());
+        assertEquals("02-100-1000", store.getStoreTel());
+        assertEquals(List.of(MONDAY, TUESDAY, WEDNESDAY), store.getOperatingInfo().getWeekdays());
+        assertNotNull(store.getCategories());
+        assertTrue(store.getCategories().size() >= 1);
     }
 
 
@@ -75,23 +80,29 @@ public class StoreServiceTest {
     @Transactional
     @DisplayName("상점 수정 테스트")
     @MockUser(roles = "OWNER")
-    void updateStoreTest() {
-        StoreId storeId = createService.create(request);
-
+    void updateStore() {
+        StoreCreateDto created = createService.create(request);
+        StoreId storeId = created.storeId();
         UUID id = storeId.getId();
-        updateService.updateInfo(id, "(수정)" + request.storeName(), "031-1000-1000", request.category());
-        updateService.updateAddressInfo(id, "(수정)주소");
-        updateService.updateOperatingInfo(id, LocalTime.of(12,0), LocalTime.of(23,0), List.of(MONDAY,TUESDAY));
 
+        // when
+        updateService.updateInfo(id, "(수정)테스트 매장", "031-100-1000", request.category());
+        updateService.updateAddressInfo(id, "(수정)인천광역시 계양구 임학안로 28번길 10");
+        updateService.updateOperatingInfo(id, LocalTime.of(11, 0), LocalTime.of(23, 0), List.of(MONDAY, WEDNESDAY));
+
+        // then
         Store store = repository.findById(storeId).orElseThrow();
-        System.out.println(store);
+        assertTrue(store.getStoreName().startsWith("(수정)"));
+        assertEquals("031-100-1000", store.getStoreTel());
+        assertEquals(List.of(MONDAY, WEDNESDAY), store.getOperatingInfo().getWeekdays());
     }
+
 
     @Test
     @DisplayName("매장 메뉴 생성 테스트")
     @MockUser(roles = "OWNER")
     void storeItemCreateTest() {
-        StoreId storeId = createService.create(request);
+        StoreId storeId = createService.create(request).storeId();
 
         ItemRequest req = ItemRequest.builder()
                         .name("매운닭발")

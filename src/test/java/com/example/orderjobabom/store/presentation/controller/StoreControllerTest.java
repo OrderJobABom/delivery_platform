@@ -26,7 +26,7 @@ import java.util.List;
 import static java.time.DayOfWeek.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*; // ★ jsonPath, status
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -79,7 +79,7 @@ public class StoreControllerTest {
     @MockUser(roles="OWNER")
     @Transactional
     void updateStoreTest() throws Exception {
-        StoreId storeId = createService.create(request);
+        StoreId storeId = createService.create(request).storeId();
 
         StoreRequest data = StoreRequest.builder()
                 .storeName("(수정)테스트 매장")
@@ -98,21 +98,18 @@ public class StoreControllerTest {
                         .content(body))
                 .andDo(print());
 
-        Store store = storeRepository.findById(storeId).orElse(null);
-//        System.out.println(store);
+        Store store = storeRepository.findById(storeId).orElseThrow();
     }
 
     @Test
     @DisplayName("매장 삭제 테스트")
     @MockUser(roles = "OWNER")
-    void deleteStoreTest() throws  Exception {
-        StoreId storeId = createService.create(request);
+    void deleteStoreTest() throws Exception {
+        StoreId storeId = createService.create(request).storeId();
 
         // when & then
         mockMvc.perform(delete("/v1/owner/stores/" + storeId.getId()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
-
-
 }
