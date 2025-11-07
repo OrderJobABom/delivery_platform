@@ -1,5 +1,6 @@
 package com.example.orderjobabom.order.domain;
 
+import com.example.orderjobabom.store.domain.StoreId;
 import com.example.orderjobabom.user.domain.UserId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,8 @@ public interface OrderRepository extends JpaRepository<Order, OrderId> {
                     @Param("end") LocalDate end,
                     Pageable pageable
             );
+
+    @Query("SELECT o FROM Order o WHERE o.storeId.id = :storeId ORDER BY o.createdAt DESC")
+    Page<Order> findAllByStoreId(@Param("storeId") UUID storeId, Pageable pageable);
+
 }

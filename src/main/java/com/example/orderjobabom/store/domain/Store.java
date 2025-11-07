@@ -1,7 +1,6 @@
 package com.example.orderjobabom.store.domain;
 
-//import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
-
+import com.example.orderjobabom.global.infrastructure.persistence.BaseEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.Item;
@@ -34,7 +33,7 @@ import java.util.*;
 @Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class Store {
+public class Store extends BaseEntity {
 
     @EmbeddedId
     private StoreId id;
