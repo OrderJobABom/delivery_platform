@@ -110,10 +110,12 @@ public class Store extends BaseEntity {
     }
 
     // Item 생성
-    public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions) {
+    public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions, MenuAiRecommend aiRecommend) {
         if (category != null && !categoryExists(category)) {
             throw new FailException(StoreErrorCode.CATEGORY_NOT_FOUND);
         }
+
+        name = aiRecommend == null? name : aiRecommend.getMenu(category, name);
 
         return Item.builder()
                 .storeId(id)

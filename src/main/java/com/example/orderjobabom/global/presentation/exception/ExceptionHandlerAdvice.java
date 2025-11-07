@@ -1,11 +1,13 @@
 package com.example.orderjobabom.global.presentation.exception;
 
+import com.example.orderjobabom.global.infrastructure.gemini.GeminiApiException;
 import com.example.orderjobabom.global.presentation.CustomResponse;
 import com.example.orderjobabom.global.presentation.error.BaseErrorCode;
 import com.example.orderjobabom.global.presentation.error.ErrorReasonDTO;
 import com.example.orderjobabom.global.presentation.error.GeneralErrorCode;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,7 +30,8 @@ public class ExceptionHandlerAdvice {
         BaseErrorCode baseErrorCode = e.getBaseErrorCode();
         ErrorReasonDTO dto = baseErrorCode.getReasonHttpStatus();
 
-        log.error("General Exception: [{}]", dto.getMessage());
+        log.error("General Exception: [{}]: {}", dto.getMessage());
+        log.error(e.getMessage(), e);
 
         return ResponseEntity.status(dto.getHttpStatus()).body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), null));
     }
@@ -38,7 +41,7 @@ public class ExceptionHandlerAdvice {
     public ResponseEntity<CustomResponse<?>> handleException(Exception e) {
         ErrorReasonDTO dto = GeneralErrorCode.INTERNAL_SERVER_500.getReasonHttpStatus();
         log.error("Exception : [{}] , Message : [{}]", e.getClass().getSimpleName(), e.getMessage());
-        e.printStackTrace();
+        log.error(e.getMessage(), e);
         String failMessage = e.getClass().getSimpleName() + " " + e.getMessage();
 
         return ResponseEntity.status(dto.getHttpStatus()).body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), failMessage));
@@ -55,7 +58,7 @@ public class ExceptionHandlerAdvice {
 
         ErrorReasonDTO dto = GeneralErrorCode.BAD_REQUEST_400.getReasonHttpStatus();
         log.error("MethodArgumentNotValidException: [{}]", errorMap);
-
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(dto.getHttpStatus()).body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), errorMap));
     }
 
@@ -69,7 +72,7 @@ public class ExceptionHandlerAdvice {
 
         ErrorReasonDTO dto = GeneralErrorCode.BAD_REQUEST_400.getReasonHttpStatus();
         log.error("ConstraintViolationException: [{}]", dto.getMessage());
-
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(dto.getHttpStatus()).body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), errorMessages));
 
     }
@@ -83,7 +86,7 @@ public class ExceptionHandlerAdvice {
         ErrorReasonDTO dto = GeneralErrorCode.UNAUTHORIZED_401.getReasonHttpStatus();
 
         log.error("Token invalid or expired: {}", e.getMessage());
-
+        log.error(e.getMessage(), e);
         String failMessage = "토큰이 만료되었거나 세션이 종료되었습니다. 다시 로그인해주세요.";
 
         return ResponseEntity.status(dto.getHttpStatus())
@@ -97,8 +100,18 @@ public class ExceptionHandlerAdvice {
         ErrorReasonDTO dto = GeneralErrorCode.FORBIDDEN_403.getReasonHttpStatus();
 
         log.error("AccessDeniedException: {}", e.getMessage());
-
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(dto.getHttpStatus())
                 .body(CustomResponse.onFailure("권한이 없는 잘못된 접근입니다.", dto.getCode(), null));
     }
+
+    // Gemini API 호출 실패 처리
+    @ExceptionHandler(GeminiApiException.class)
+    public ResponseEntity<CustomResponse<?>> handleGeminiApiException(GeminiApiException e) {
+        Map<String, String> error = Map.of("error", e.getMessage());
+        log.error("GeminiApiException: {}", e.getMessage());
+        log.error(e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(CustomResponse.onFailure("api 호출에 실패했습니다.", e.getMessage(), null));
+    }
+
 }

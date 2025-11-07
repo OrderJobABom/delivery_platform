@@ -1,10 +1,11 @@
 package com.example.orderjobabom.store.application.service;
 
-import com.example.orderjobabom.store.domain.Category;
-import com.example.orderjobabom.store.domain.Store;
-import com.example.orderjobabom.store.domain.StoreId;
-import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.menu.domain.ItemStatus;
+import com.example.orderjobabom.store.application.service.dto.ItemDto;
+import com.example.orderjobabom.store.domain.*;
 import com.example.orderjobabom.store.presentation.dto.CategoryDto;
+import com.example.orderjobabom.store.presentation.dto.ItemOptionRequest;
+import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.store.presentation.dto.StoreRequest;
 import com.example.orderjobabom.user.test.MockUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,12 @@ public class StoreServiceTest {
 
     @Autowired
     StoreUpdateService updateService;
+
+    @Autowired
+    StoreItemCreateService itemCreateService;
+
+    @Autowired
+    MenuAiRecommend aiRecommend;
 
     StoreRequest request;
 
@@ -78,5 +85,25 @@ public class StoreServiceTest {
 
         Store store = repository.findById(storeId).orElseThrow();
         System.out.println(store);
+    }
+
+    @Test
+    @DisplayName("매장 메뉴 생성 테스트")
+    @MockUser(roles = "OWNER")
+    void storeItemCreateTest() {
+        StoreId storeId = createService.create(request);
+
+        ItemRequest req = ItemRequest.builder()
+                        .name("매운닭발")
+                                .category(Category.KOREAN)
+                                        .price(10000)
+                                                .status(ItemStatus.IN_STOCK)
+                                                        .stock(1000)
+                                                                .itemOptions(List.of(new ItemOptionRequest("우유 추가",1000)))
+                                                                        .genAi(true)
+                                                                                .build();
+
+        ItemDto itemDto = itemCreateService.create(storeId.getId(), req);
+        System.out.println(itemDto);
     }
 }
