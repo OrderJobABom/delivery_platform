@@ -25,6 +25,14 @@ spring:
         default_batch_fetch_size: 100
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  data:
+    redis:
+      host: redis-14791.c340.ap-northeast-2-1.ec2.redns.redis-cloud.com
+      port: 14791
+      username: default
+      password: ${REDIS_PASSWORD}
+      timeout: 3000ms
+
   security:
     oauth2:
       client:
@@ -70,3 +78,15 @@ keycloak:
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
   admin-username: ${KEYCLOAK_ADMIN_USERNAME}
   admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+
+  logging:
+    level:
+      root: info
+      com.example.orderjobabom: debug
+      org.springframework.web: debug
+      org.hibernate.SQL: debug
+      org.springframework.security: debug
+
