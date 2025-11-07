@@ -13,22 +13,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true) // 메서드 권한(@PreAuthorize) 활성화
 public class SecurityConfig {
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         JwtAuthenticationConverter conv = new JwtAuthenticationConverter();
         conv.setJwtGrantedAuthoritiesConverter(new KeycloakClientRoleConverter());
 
-        http.csrf(c -> c.disable())
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v1/user/profile/**", "/v1/user/password/**", "/v1/user/role/**").hasRole("USER")
-                        .requestMatchers("/v1/owner/**").hasRole("OWNER")
-                        .anyRequest().permitAll())
-                .oauth2Login(c -> c.disable())
-                .oauth2ResourceServer(c -> c
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(conv))
-                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -81,7 +72,8 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(conv))
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                );
 
         return http.build();
     }

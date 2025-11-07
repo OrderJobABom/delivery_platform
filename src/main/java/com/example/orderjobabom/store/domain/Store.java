@@ -1,6 +1,6 @@
 package com.example.orderjobabom.store.domain;
 
-import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
+import com.example.orderjobabom.global.infrastructure.persistence.BaseEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.Item;
@@ -34,7 +34,7 @@ import java.util.*;
 @Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class Store extends BaseUserEntity {
+public class Store extends BaseEntity {
 
     @EmbeddedId
     private StoreId id;
@@ -62,6 +62,12 @@ public class Store extends BaseUserEntity {
     @Embedded
     private OperatingInfo operatingInfo;
 
+    /** 매장 평균 평점 */
+    @Column(name = "average_rating")
+    private Double averageRating;
+
+
+    // ====== 빌더 생성자 ======
     @Builder
     public Store(StoreId id, String storeName, String storeTel, String address, LocalTime startHour, LocalTime endHour, List<DayOfWeek> weekdays, List<StoreCategory> categories, UserId userId, String userName, StoreAddressService addressService) {
         this.id = Objects.requireNonNullElse(id, StoreId.of());
@@ -103,9 +109,6 @@ public class Store extends BaseUserEntity {
         categories = categories.stream().distinct().toList();
     }
 
-    public void emptyCategory() {
-        categories = new ArrayList<>();
-    }
     // Item 생성
     public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions) {
         if (category != null && !categoryExists(category)) {
@@ -229,4 +232,9 @@ public class Store extends BaseUserEntity {
         return item.updateItem(dto);
     }
 
+
+    public void emptyCategory() {
+
+
+    }
 }

@@ -10,6 +10,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class StoreDeleteService {
+
     private final StoreDetailsRepository detailsRepository;
     private final StoreRepository repository;
     private final RoleCheck roleCheck;
@@ -18,6 +19,7 @@ public class StoreDeleteService {
     public void delete(UUID id) {
         StoreId storeId = StoreId.of(id);
         Store.exists(storeId, repository);
+
 
         Store store = detailsRepository.findById(storeId);
         store.isEditable(roleCheck);
