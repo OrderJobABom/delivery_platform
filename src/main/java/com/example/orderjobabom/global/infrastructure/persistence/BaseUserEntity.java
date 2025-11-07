@@ -1,4 +1,4 @@
-package com.example.orderjobabom.global.presentation;
+package com.example.orderjobabom.global.infrastructure.persistence;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,10 +12,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseUserEntity extends BaseEntity {
     @CreatedBy
-    @Column(length=45, updatable = false)
+    @Column(length = 45, updatable = false)
     protected String createdBy;
 
     @LastModifiedBy
-    @Column(length=45, insertable = false)
+    @Column(length = 45, insertable = false)
     protected String modifiedBy;
 }

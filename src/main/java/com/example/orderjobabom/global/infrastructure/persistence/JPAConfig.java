@@ -1,4 +1,4 @@
-package com.example.orderjobabom.global.presentation.config;
+package com.example.orderjobabom.global.infrastructure.persistence;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -17,4 +17,5 @@ public class JPAConfig {
     public JPAQueryFactory jpaQueryFactory() {
         return new JPAQueryFactory(em);
     }
+
 }

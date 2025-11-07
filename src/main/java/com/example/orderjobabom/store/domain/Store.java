@@ -13,6 +13,7 @@ import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
 import com.example.orderjobabom.store.domain.service.StoreAddressService;
+import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
@@ -41,8 +42,8 @@ public class Store extends BaseEntity {
     @Embedded
     private Owner owner;
 
-    @Transient
-    private Set<Staff> staffs;
+    @Convert(converter = StaffConverter.class)
+    private Set<Staff> staffs; // 직원들
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
@@ -76,6 +77,9 @@ public class Store extends BaseEntity {
         this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
         this.owner = new Owner(userId, userName);
         setCategories(categories);
+
+        List<Double> coords = addressService.getCoordinate(address); // 주소 -> 좌표
+        this.address = new StoreAddress(address, coords.get(0), coords.get(1));
     }
 
     private void setCategories(List<StoreCategory> categories) {
@@ -228,4 +232,9 @@ public class Store extends BaseEntity {
         return item.updateItem(dto);
     }
 
+
+    public void emptyCategory() {
+
+
+    }
 }
