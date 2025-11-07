@@ -7,6 +7,7 @@ import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.order.domain.exception.OrderErrorCode;
 import com.example.orderjobabom.order.presentation.dto.requestDTO.DeliveryRequestDTO;
 import com.example.orderjobabom.store.domain.StoreId;
+import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -94,4 +95,23 @@ public class Order extends BaseEntity {
 
         this.orderStatus = OrderStatus.ORDER_CANCEL;
     }
+
+    //  조리 시작 (= 배달 준비 중)
+    public void startCooking() {
+        if (orderStatus != OrderStatus.ORDER_ACCEPT) {
+            throw new FailException(StoreErrorCode.CAN_NOT_START_COOKING);
+        }
+
+        this.orderStatus = OrderStatus.PREPARING;
+    }
+
+    // 조리 완료 (= 배달 중)
+    public void completeCooking() {
+        if (orderStatus != OrderStatus.PREPARING) {
+            throw new FailException(StoreErrorCode.CAN_NOT_COMPLETE_COOKING);
+        }
+
+        this.orderStatus = OrderStatus.DELIVERING;
+    }
+
 }
