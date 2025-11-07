@@ -1,10 +1,9 @@
 package com.example.orderjobabom.store.infrastructure.persistence;
 
-import com.example.orderjobabom.store.domain.Category;
-import com.example.orderjobabom.store.domain.Store;
-import com.example.orderjobabom.store.domain.StoreDetailsRepository;
-import com.example.orderjobabom.store.domain.StoreId;
+import com.example.orderjobabom.store.domain.*;
 import com.example.orderjobabom.store.domain.dto.StoreSearch;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.StringPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
