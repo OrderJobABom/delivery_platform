@@ -26,6 +26,9 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .oauth2Login(c -> c.disable())
                 .oauth2ResourceServer(c -> c
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(conv))
+                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth

@@ -1,10 +1,17 @@
 package com.example.orderjobabom.review.domain;
 
-import com.example.orderjobabom.global.presentation.BaseUserEntity;
+import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
 import com.example.orderjobabom.order.domain.OrderId;
-import com.example.orderjobabom.review.domain.exception.*;
+import com.example.orderjobabom.review.domain.exception.ReplyNotFoundException;
+import com.example.orderjobabom.review.domain.exception.ReviewAccessDeniedException;
+import com.example.orderjobabom.review.domain.exception.ReviewAlreadyDeletedException;
+import com.example.orderjobabom.review.domain.exception.ReviewAlreadyExistsException;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 

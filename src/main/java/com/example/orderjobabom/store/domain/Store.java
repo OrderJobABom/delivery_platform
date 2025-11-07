@@ -1,5 +1,6 @@
 package com.example.orderjobabom.store.domain;
 
+import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.Item;
