@@ -65,5 +65,4 @@ jobs:
             echo "이미지 Pull"
             sudo docker pull ${{ env.IMAGE_URI }}
 
-            sudo docker run -d --name myapp -p 3000:8080 \
-            ${{ env.IMAGE_URI }}
+            sudo deploy.sh
