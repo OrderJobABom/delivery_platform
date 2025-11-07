@@ -1,14 +1,14 @@
 FROM eclipse-temurin:21-jdk
 ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
-COPY prod.env prod.env
 
-ENV DB_DDL_AUTO=create
 
-ENV KEYCLOAK_SERVER_URL=https://keycloak6.sparta-project.xyz
-ENV KEYCLOAK_REALM=delivery
-ENV KEYCLOAK_CLIENT_ID=spring-app
+ENV DB__DDL_AUTO=create
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV KC_SERVER_URL=https://keycloak6.sparta-project.xyz
+ENV KC_REALM=delivery
+ENV KC_CLIENT_ID=spring-app
+
+ENTRYPOINT ["java", "-DDB_URL=${DB__URL}", "-DDB_USERNAME=${DB__USERNAME}", "-DDB_PASSWORD=${DB__PASSWORD}", "-DDB_DDL_AUTO=${DB__DDL_AUTO}", "-DKEYCLOAK_SERVER_URL=${KC_SERVER_URL}","-DKEYCLOAK_REALM=${KC_REALM}", "-DKEYCLOAK_CLIENT_ID=${KC_CLIENT_ID}", "-DKEYCLOAK_ADMIN_USERNAME=${KC_ADMIN_USERNAME}", "-DKEYCLOAK_ADMIN_PASSWORD=${KC_ADMIN_PASSWORD}","-DGEMINI_API_KEY=${G_API_KEY}","-jar", "app.jar"]
 
 EXPOSE 3000
