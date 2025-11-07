@@ -64,8 +64,8 @@ springdoc:
     disabled: true
 
 keycloak:
-  server-url: https://keycloak6.sparta-project.xyz
-  realm: codefactory
+  server-url: ${KEYCLOAK_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
   client-id: ${KEYCLOAK_CLIENT_ID}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
   admin-username: ${KEYCLOAK_ADMIN_USERNAME}

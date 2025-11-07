@@ -49,4 +49,9 @@ public class CustomResponse<T> {
                 .code(code)
                 .build();
     }
+
+    public static <T> CustomResponse<T> onSuccess(String message, T result) {
+        return new CustomResponse<>(true, message, "200", result);
+    }
+
 }

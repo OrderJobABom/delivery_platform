@@ -12,7 +12,8 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreId {
-    @Column(length=45, name="store_id")
+
+    @Column(name = "store_id")
     private UUID id;
 
     private StoreId(UUID id) {
@@ -20,7 +21,7 @@ public class StoreId {
     }
 
     public static StoreId of() {
-        return StoreId.of(UUID.randomUUID());
+        return new StoreId(UUID.randomUUID());
     }
 
     public static StoreId of(UUID id) {

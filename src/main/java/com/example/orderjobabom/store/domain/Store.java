@@ -1,6 +1,5 @@
 package com.example.orderjobabom.store.domain;
 
-import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.Item;
@@ -17,17 +16,17 @@ import com.example.orderjobabom.store.infrastructure.persistence.converter.Staff
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@ToString
 @Getter
 @Entity
 @Access(AccessType.FIELD)
@@ -67,6 +66,7 @@ public class Store extends BaseUserEntity {
         this.id = Objects.requireNonNullElse(id, StoreId.of());
         this.storeName = storeName;
         this.storeTel = storeTel;
+        this.address = StoreAddress.of(address);
         this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
         this.owner = new Owner(userId, userName);
         setCategories(categories);
@@ -83,7 +83,7 @@ public class Store extends BaseUserEntity {
 
 
     public void delete() {
-        deletedAt = LocalDateTime.now();
+//        deletedAt = LocalDateTime.now();
     }
 
     /**
@@ -96,11 +96,10 @@ public class Store extends BaseUserEntity {
         }
     }
 
-
     public void addCategory(Category category, boolean active) {
-        categories = new ArrayList<>(Objects.requireNonNullElseGet(categories, ArrayList::new));
+        categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
         categories.add(new StoreCategory(category, active));
-        categories = categories.stream().distinct().collect(Collectors.toCollection(ArrayList::new));
+        categories = categories.stream().distinct().toList();
     }
 
     public void emptyCategory() {

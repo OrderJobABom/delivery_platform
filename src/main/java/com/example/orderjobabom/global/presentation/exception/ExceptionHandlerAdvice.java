@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,7 @@ public class ExceptionHandlerAdvice {
     public ResponseEntity<CustomResponse<?>> handleException(Exception e) {
         ErrorReasonDTO dto = GeneralErrorCode.INTERNAL_SERVER_500.getReasonHttpStatus();
         log.error("Exception : [{}] , Message : [{}]", e.getClass().getSimpleName(), e.getMessage());
-
+        e.printStackTrace();
         String failMessage = e.getClass().getSimpleName() + " " + e.getMessage();
 
         return ResponseEntity.status(dto.getHttpStatus()).body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), failMessage));
@@ -73,4 +74,31 @@ public class ExceptionHandlerAdvice {
 
     }
 
+    // JWT 또는 OAuth2 인증 관련 예외 처리 (Keycloak 세션 만료 포함)
+    @ExceptionHandler({org.springframework.security.oauth2.core.OAuth2AuthenticationException.class,
+            org.springframework.security.oauth2.jwt.JwtValidationException.class})
+    public ResponseEntity<CustomResponse<?>> handleJwtAuthException(Exception e) {
+
+        // 401 Unauthorized 정의 불러오기
+        ErrorReasonDTO dto = GeneralErrorCode.UNAUTHORIZED_401.getReasonHttpStatus();
+
+        log.error("Token invalid or expired: {}", e.getMessage());
+
+        String failMessage = "토큰이 만료되었거나 세션이 종료되었습니다. 다시 로그인해주세요.";
+
+        return ResponseEntity.status(dto.getHttpStatus())
+                .body(CustomResponse.onFailure(dto.getMessage(), dto.getCode(), failMessage));
+    }
+
+
+    // 6. 권한(인가) 거부 — 추가해야 할 부분!
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CustomResponse<?>> handleAccessDeniedException(AccessDeniedException e) {
+        ErrorReasonDTO dto = GeneralErrorCode.FORBIDDEN_403.getReasonHttpStatus();
+
+        log.error("AccessDeniedException: {}", e.getMessage());
+
+        return ResponseEntity.status(dto.getHttpStatus())
+                .body(CustomResponse.onFailure("권한이 없는 잘못된 접근입니다.", dto.getCode(), null));
+    }
 }
