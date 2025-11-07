@@ -10,7 +10,7 @@ public class UserUpdateValidator {
         if (!StringUtils.hasText(req.email()) &&
                 !StringUtils.hasText(req.firstName()) &&
                 !StringUtils.hasText(req.lastName()) &&
-                !StringUtils.hasText(req.mobile())) {
+                !StringUtils.hasText(req.phone())) {
             throw new IllegalArgumentException("수정할 항목이 없습니다.");
         }
     }
