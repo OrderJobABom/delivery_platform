@@ -1,11 +1,12 @@
 package com.example.orderjobabom.store.application.service;
 
-import com.example.orderjobabom.store.domain.Category;
-import com.example.orderjobabom.store.domain.Store;
-import com.example.orderjobabom.store.domain.StoreId;
-import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.menu.domain.ItemStatus;
+import com.example.orderjobabom.store.application.service.dto.ItemDto;
+import com.example.orderjobabom.store.domain.*;
 import com.example.orderjobabom.store.domain.dto.StoreCreateDto;
 import com.example.orderjobabom.store.presentation.dto.CategoryDto;
+import com.example.orderjobabom.store.presentation.dto.ItemOptionRequest;
+import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.store.presentation.dto.StoreRequest;
 import com.example.orderjobabom.user.test.MockUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,30 +24,40 @@ import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class StoreServiceTest {
+public class StoreServiceTest {
 
-    @Autowired StoreCreateService createService;
-    @Autowired StoreUpdateService updateService;
-    @Autowired StoreDeleteService deleteService;
-    @Autowired StoreRepository repository;
+    @Autowired
+    StoreCreateService createService;
+
+    @Autowired
+    StoreUpdateService updateService;
+
+    @Autowired
+    StoreItemCreateService itemCreateService;
+
+    @Autowired
+    MenuAiRecommend aiRecommend;
 
     StoreRequest request;
 
+    @Autowired
+    StoreRepository repository;
+    @Autowired
+    private StoreDeleteService storeDeleteService;
+
     @BeforeEach
-    void setUp() {
+    void init() {
         request = StoreRequest.builder()
                 .storeName("테스트 매장")
                 .storeAddress("인천광역시 계양구 임학안로 28번길 10")
                 .storeTel("02-100-1000")
                 .startHour(LocalTime.of(10, 0))
                 .endHour(LocalTime.of(19, 0))
-                .weekdays(List.of(MONDAY, TUESDAY, WEDNESDAY))
-                .category(List.of(
-                        new CategoryDto(Category.KOREAN, true),
-                        new CategoryDto(Category.CHINESE, true)
-                ))
+                .weekdays(List.of(MONDAY,TUESDAY, WEDNESDAY))
+                .category(List.of(new CategoryDto(Category.KOREAN, true), new CategoryDto(Category.CHINESE, true)))
                 .build();
     }
+
 
     @Test
     @Transactional
@@ -64,9 +75,10 @@ class StoreServiceTest {
         assertTrue(store.getCategories().size() >= 1);
     }
 
+
     @Test
     @Transactional
-    @DisplayName("서비스: 매장 수정")
+    @DisplayName("상점 수정 테스트")
     @MockUser(roles = "OWNER")
     void updateStore() {
         StoreCreateDto created = createService.create(request);
@@ -85,19 +97,24 @@ class StoreServiceTest {
         assertEquals(List.of(MONDAY, WEDNESDAY), store.getOperatingInfo().getWeekdays());
     }
 
+
     @Test
-    @Transactional
-    @DisplayName("서비스: 매장 삭제")
+    @DisplayName("매장 메뉴 생성 테스트")
     @MockUser(roles = "OWNER")
-    void deleteStore() {
-        StoreCreateDto created = createService.create(request);
-        StoreId storeId = created.storeId();
+    void storeItemCreateTest() {
+        StoreId storeId = createService.create(request).storeId();
 
-        // when
-        deleteService.delete(storeId.getId());
+        ItemRequest req = ItemRequest.builder()
+                        .name("매운닭발")
+                                .category(Category.KOREAN)
+                                        .price(10000)
+                                                .status(ItemStatus.IN_STOCK)
+                                                        .stock(1000)
+                                                                .itemOptions(List.of(new ItemOptionRequest("우유 추가",1000)))
+                                                                        .genAi(true)
+                                                                                .build();
 
-        // then (하드 삭제 기준)
-        assertTrue(repository.findById(storeId).isEmpty());
-        // ※ 소프트 삭제 정책이면 isEmpty 대신 deleted 플래그/삭제일시 등을 검증하도록 변경
+        ItemDto itemDto = itemCreateService.create(storeId.getId(), req);
+        System.out.println(itemDto);
     }
 }

@@ -8,6 +8,7 @@ import com.example.orderjobabom.menu.domain.ItemRepository;
 import com.example.orderjobabom.menu.domain.Stock;
 import com.example.orderjobabom.store.application.service.dto.ItemDto;
 import com.example.orderjobabom.store.application.service.dto.ItemOptionDto;
+import com.example.orderjobabom.store.domain.MenuAiRecommend;
 import com.example.orderjobabom.store.domain.Store;
 import com.example.orderjobabom.store.domain.StoreId;
 import com.example.orderjobabom.store.domain.StoreRepository;
@@ -30,6 +31,7 @@ public class StoreItemCreateService {
 
     private final StoreRepository storeRepository;
     private final ItemRepository itemRepository;
+    private final MenuAiRecommend aiRecommend;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
@@ -41,7 +43,9 @@ public class StoreItemCreateService {
         List<ItemOption> itemOptions = itemRequest.itemOptions() == null ? null : itemRequest.itemOptions().stream()
                 .map(op -> new ItemOption(op.optionName(), new Price(toInt(op.addPrice())))).toList();
 
-        Item newItem = store.createItem(itemRequest.category(), new Price(toInt(itemRequest.price())), itemRequest.name(), itemRequest.status(), new Stock(toInt(itemRequest.stock())), itemOptions);
+        boolean genAi = itemRequest.genAi() == null ? false : itemRequest.genAi();
+
+        Item newItem = store.createItem(itemRequest.category(), new Price(toInt(itemRequest.price())), itemRequest.name(), itemRequest.status(), new Stock(toInt(itemRequest.stock())), itemOptions, genAi ? aiRecommend : null);
         itemRepository.save(newItem);
 
         List<ItemOptionDto> optionsDto = newItem.getItemOptions() == null ? null : newItem.getItemOptions().stream()
