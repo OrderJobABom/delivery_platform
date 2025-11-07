@@ -26,27 +26,19 @@ import java.util.List;
 import static java.time.DayOfWeek.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*; // ★ jsonPath, status
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class StoreControllerTest {
+class StoreControllerTest {
 
-    @Autowired
-    ObjectMapper om;
+    @Autowired ObjectMapper om;
+    @Autowired StoreCreateService createService;
+    @Autowired MockMvc mockMvc;
+    @Autowired StoreRepository storeRepository;
+    @Autowired StoreDeleteService storeDeleteService;
+
     StoreRequest request;
-
-    @Autowired
-    StoreCreateService createService;
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    StoreRepository storeRepository;
-
-    @Autowired
-    StoreDeleteService storeDeleteService;
 
     @BeforeEach
     void init() {
@@ -56,22 +48,34 @@ public class StoreControllerTest {
                 .storeTel("02-100-1000")
                 .startHour(LocalTime.of(10, 0))
                 .endHour(LocalTime.of(19, 0))
-                .weekdays(List.of(MONDAY,TUESDAY, WEDNESDAY))
-                .category(List.of(new CategoryDto(Category.KOREAN, true), new CategoryDto(Category.CHINESE, true)))
+                .weekdays(List.of(MONDAY, TUESDAY, WEDNESDAY))
+                .category(List.of(
+                        new CategoryDto(Category.KOREAN, true),
+                        new CategoryDto(Category.CHINESE, true)
+                ))
                 .build();
     }
 
     @Test
-    @DisplayName("매장 생성 테스트")
-    @MockUser(roles="OWNER")
+    @DisplayName("매장 생성 테스트 - CustomResponse<StoreCreateDto> 검증")
+    @MockUser(roles = "OWNER")
     void createStoreTest() throws Exception {
         String body = om.writeValueAsString(request);
 
         mockMvc.perform(post("/v1/owner/stores")
-            .contentType(MediaType.APPLICATION_JSON)
-                .content(body))
-                .andDo(print());
-
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                // 상태 코드 (201 Created)
+                .andExpect(status().isCreated())
+                // CustomResponse 공통 필드
+                .andExpect(jsonPath("$.isSuccess").value(true))
+                .andExpect(jsonPath("$.code").value("201"))
+                .andExpect(jsonPath("$.message").exists())
+                // payload: StoreCreateDto(storeId)
+                // StoreId가 VO라면 보통 {"id":"<uuid>"} 형태일 가능성이 높음
+                .andExpect(jsonPath("$.result.storeId").exists())
+                .andExpect(jsonPath("$.result.storeId.id").exists());
     }
 
     @Test
@@ -79,7 +83,7 @@ public class StoreControllerTest {
     @MockUser(roles="OWNER")
     @Transactional
     void updateStoreTest() throws Exception {
-        StoreId storeId = createService.create(request);
+        StoreId storeId = createService.create(request).storeId();
 
         StoreRequest data = StoreRequest.builder()
                 .storeName("(수정)테스트 매장")
@@ -88,27 +92,30 @@ public class StoreControllerTest {
                 .startHour(LocalTime.of(11, 0))
                 .endHour(LocalTime.of(23, 0))
                 .weekdays(List.of(MONDAY, WEDNESDAY))
-                .category(List.of(new CategoryDto(Category.KOREAN, true), new CategoryDto(Category.ITALIAN, true)))
+                .category(List.of(
+                        new CategoryDto(Category.KOREAN, true),
+                        new CategoryDto(Category.ITALIAN, true)
+                ))
                 .build();
 
         String body = om.writeValueAsString(data);
-//        System.out.println(body);
+
+        // 컨트롤러가 아직 void 반환이면 상태코드만 검증
         mockMvc.perform(patch("/v1/owner/stores/" + storeId.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(print());
+//                .andExpect(status().isOk());
 
-        Store store = storeRepository.findById(storeId).orElse(null);
-//        System.out.println(store);
+        Store store = storeRepository.findById(storeId).orElseThrow();
     }
 
     @Test
     @DisplayName("매장 삭제 테스트")
     @MockUser(roles = "OWNER")
-    void deleteStoreTest() throws  Exception {
-        StoreId storeId = createService.create(request);
+    void deleteStoreTest() throws Exception {
+        StoreId storeId = createService.create(request).storeId();
 
-        // when & then
         mockMvc.perform(delete("/v1/owner/stores/" + storeId.getId()))
                 .andDo(print())
                 .andExpect(status().isNoContent());

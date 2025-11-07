@@ -4,6 +4,7 @@ import com.example.orderjobabom.store.domain.Category;
 import com.example.orderjobabom.store.domain.Store;
 import com.example.orderjobabom.store.domain.StoreId;
 import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.store.domain.dto.StoreCreateDto;
 import com.example.orderjobabom.store.presentation.dto.CategoryDto;
 import com.example.orderjobabom.store.presentation.dto.StoreRequest;
 import com.example.orderjobabom.user.test.MockUser;
@@ -19,64 +20,84 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.time.DayOfWeek.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class StoreServiceTest {
+class StoreServiceTest {
 
-    @Autowired
-    StoreCreateService createService;
-
-    @Autowired
-    StoreUpdateService updateService;
+    @Autowired StoreCreateService createService;
+    @Autowired StoreUpdateService updateService;
+    @Autowired StoreDeleteService deleteService;
+    @Autowired StoreRepository repository;
 
     StoreRequest request;
 
-    @Autowired
-    StoreRepository repository;
-
     @BeforeEach
-    void init() {
+    void setUp() {
         request = StoreRequest.builder()
                 .storeName("테스트 매장")
                 .storeAddress("인천광역시 계양구 임학안로 28번길 10")
                 .storeTel("02-100-1000")
                 .startHour(LocalTime.of(10, 0))
                 .endHour(LocalTime.of(19, 0))
-                .weekdays(List.of(MONDAY,TUESDAY, WEDNESDAY))
-                .category(List.of(new CategoryDto(Category.KOREAN, true), new CategoryDto(Category.CHINESE, true)))
+                .weekdays(List.of(MONDAY, TUESDAY, WEDNESDAY))
+                .category(List.of(
+                        new CategoryDto(Category.KOREAN, true),
+                        new CategoryDto(Category.CHINESE, true)
+                ))
                 .build();
     }
 
-
     @Test
     @Transactional
-    @DisplayName("상점 등록 테스트")
+    @DisplayName("서비스: 매장 생성")
     @MockUser(roles = "OWNER")
-    void createStoreTest() {
-
-        assertDoesNotThrow(() -> {
-            StoreId storeId = createService.create(request);
-
-            Store store = repository.findById(storeId).orElseThrow();
-            System.out.println(store);
-        });
-    }
-
-
-    @Test
-    @Transactional
-    @DisplayName("상점 수정 테스트")
-    @MockUser(roles = "OWNER")
-    void updateStoreTest() {
-        StoreId storeId = createService.create(request);
-
-        UUID id = storeId.getId();
-        updateService.updateInfo(id, "(수정)" + request.storeName(), "031-1000-1000", request.category());
-        updateService.updateAddressInfo(id, "(수정)주소");
-        updateService.updateOperatingInfo(id, LocalTime.of(12,0), LocalTime.of(23,0), List.of(MONDAY,TUESDAY));
+    void createStore() {
+        StoreCreateDto created = createService.create(request);
+        StoreId storeId = created.storeId();
 
         Store store = repository.findById(storeId).orElseThrow();
-        System.out.println(store);
+        assertEquals("테스트 매장", store.getStoreName());
+        assertEquals("02-100-1000", store.getStoreTel());
+        assertEquals(List.of(MONDAY, TUESDAY, WEDNESDAY), store.getOperatingInfo().getWeekdays());
+        assertNotNull(store.getCategories());
+        assertTrue(store.getCategories().size() >= 1);
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("서비스: 매장 수정")
+    @MockUser(roles = "OWNER")
+    void updateStore() {
+        StoreCreateDto created = createService.create(request);
+        StoreId storeId = created.storeId();
+        UUID id = storeId.getId();
+
+        // when
+        updateService.updateInfo(id, "(수정)테스트 매장", "031-100-1000", request.category());
+        updateService.updateAddressInfo(id, "(수정)인천광역시 계양구 임학안로 28번길 10");
+        updateService.updateOperatingInfo(id, LocalTime.of(11, 0), LocalTime.of(23, 0), List.of(MONDAY, WEDNESDAY));
+
+        // then
+        Store store = repository.findById(storeId).orElseThrow();
+        assertTrue(store.getStoreName().startsWith("(수정)"));
+        assertEquals("031-100-1000", store.getStoreTel());
+        assertEquals(List.of(MONDAY, WEDNESDAY), store.getOperatingInfo().getWeekdays());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("서비스: 매장 삭제")
+    @MockUser(roles = "OWNER")
+    void deleteStore() {
+        StoreCreateDto created = createService.create(request);
+        StoreId storeId = created.storeId();
+
+        // when
+        deleteService.delete(storeId.getId());
+
+        // then (하드 삭제 기준)
+        assertTrue(repository.findById(storeId).isEmpty());
+        // ※ 소프트 삭제 정책이면 isEmpty 대신 deleted 플래그/삭제일시 등을 검증하도록 변경
     }
 }

@@ -1,25 +1,20 @@
 package com.example.orderjobabom.store.presentation.controller;
 
+import com.example.orderjobabom.global.presentation.CustomResponse;
 import com.example.orderjobabom.store.application.service.StoreCreateService;
 import com.example.orderjobabom.store.application.service.StoreDeleteService;
+import com.example.orderjobabom.store.application.service.StoreOrderQueryService;
 import com.example.orderjobabom.store.application.service.StoreUpdateService;
-import com.example.orderjobabom.store.domain.StoreId;
+import com.example.orderjobabom.store.application.service.dto.StoreOrderSummaryDto;
+import com.example.orderjobabom.store.domain.dto.StoreCreateDto;
+import com.example.orderjobabom.store.domain.exception.StoreOrderSuccessCode;
+import com.example.orderjobabom.store.domain.exception.StoreSuccessCode;
+import com.example.orderjobabom.store.presentation.dto.PageResponse;
 import com.example.orderjobabom.store.presentation.dto.StoreRequest;
-import com.example.orderjobabom.store.presentation.dto.StoreResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
-import com.example.orderjobabom.global.presentation.CustomResponse;
-import com.example.orderjobabom.store.application.service.StoreOrderQueryService;
-import com.example.orderjobabom.store.application.service.dto.StoreOrderSummaryDto;
-import com.example.orderjobabom.store.domain.exception.StoreItemSuccessCode;
-import com.example.orderjobabom.store.domain.exception.StoreOrderSuccessCode;
-import com.example.orderjobabom.store.presentation.dto.PageResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -31,13 +26,14 @@ public class StoreController {
     private final StoreCreateService storeCreateService;
     private final StoreUpdateService storeUpdateService;
     private final StoreDeleteService storeDeleteService;
+    private final StoreOrderQueryService storeOrderQueryService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public StoreResponse createStore(@Valid @RequestBody StoreRequest request) {
-        StoreId storeId = storeCreateService.create(request);
+    public CustomResponse<StoreCreateDto> createStore(@Valid @RequestBody StoreRequest request) {
+        StoreCreateDto storeIdResponse = storeCreateService.create(request);
 
-        return new StoreResponse(storeId);
+        return CustomResponse.of(StoreSuccessCode.STORE_CREATED, storeIdResponse);
     }
 
     @PatchMapping("/{storeId}")
@@ -52,8 +48,6 @@ public class StoreController {
     public void deleteStore(@PathVariable("storeId") UUID storeId) {
         storeDeleteService.delete(storeId);
     }
-
-    private final StoreOrderQueryService storeOrderQueryService;
 
     @GetMapping("/orders/{storeId}")
     public CustomResponse<?> getStoreOrders(
