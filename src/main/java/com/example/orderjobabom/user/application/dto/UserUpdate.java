@@ -8,5 +8,5 @@ public record UserUpdate(
         String email,
         String firstName,
         String lastName,
-        String mobile
+        String phone
 ) {}

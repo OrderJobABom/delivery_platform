@@ -1,15 +1,19 @@
 package com.example.orderjobabom.store.domain;
 
+//import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
+
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
-import com.example.orderjobabom.menu.domain.*;
+import com.example.orderjobabom.menu.domain.Item;
+import com.example.orderjobabom.menu.domain.ItemOption;
+import com.example.orderjobabom.menu.domain.ItemStatus;
+import com.example.orderjobabom.menu.domain.Stock;
 import com.example.orderjobabom.menu.domain.exception.ItemErrorCode;
 import com.example.orderjobabom.store.domain.exception.StaffNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
 import com.example.orderjobabom.store.domain.service.StoreAddressService;
-import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
@@ -38,8 +42,8 @@ public class Store {
     @Embedded
     private Owner owner;
 
-    @Convert(converter = StaffConverter.class)
-    private Set<Staff> staffs; // 직원들
+    @Transient
+    private Set<Staff> staffs;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
@@ -58,6 +62,12 @@ public class Store {
     @Embedded
     private OperatingInfo operatingInfo;
 
+    /** 매장 평균 평점 */
+    @Column(name = "average_rating")
+    private Double averageRating;
+
+
+    // ====== 빌더 생성자 ======
     @Builder
     public Store(StoreId id, String storeName, String storeTel, String address, LocalTime startHour, LocalTime endHour, List<DayOfWeek> weekdays, List<StoreCategory> categories, UserId userId, String userName, StoreAddressService addressService) {
         this.id = Objects.requireNonNullElse(id, StoreId.of());

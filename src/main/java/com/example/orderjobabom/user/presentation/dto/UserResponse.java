@@ -7,5 +7,5 @@ public record UserResponse(
         String username,
         String email,
         String name,
-        String mobile
+        String phone
 ) {}

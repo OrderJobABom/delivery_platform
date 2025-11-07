@@ -52,6 +52,10 @@ public class UserRegisterService {
 
         // 사용자 등록 요청
         Response response = usersResource.create(user);
+        String userId = CreatedResponseUtil.getCreatedId(response);
+
+        // Keycloak create() 후 attributes 반영 보장
+        usersResource.get(userId).update(user);
 
         int status = response.getStatus();
         String body = response.readEntity(String.class);
@@ -66,9 +70,6 @@ public class UserRegisterService {
         } else if (status != 201) {
             throw new FailException(UserErrorCode.KEYCLOAK_REGISTER_FAIL);
         }
-
-        // 생성된 사용자 ID 조회
-        String userId = CreatedResponseUtil.getCreatedId(response);
 
         // 비밀번호 설정
         CredentialRepresentation passwordCred = new CredentialRepresentation();
