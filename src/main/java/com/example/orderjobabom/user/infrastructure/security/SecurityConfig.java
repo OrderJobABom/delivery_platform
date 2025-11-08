@@ -29,6 +29,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).authenticated()
+                        .requestMatchers(
+                                "/swagger-ui/**"
+                        ).permitAll()
                         // 토큰 관련 요청은 인증 불필요 (회원가입, 로그인, 토큰 재발급)
                         .requestMatchers(
                                 "/v1/user/signup",
