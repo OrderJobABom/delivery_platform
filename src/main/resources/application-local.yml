@@ -67,3 +67,15 @@ gemini:
   api:
     key: ${GEMINI_API_KEY}
     base-url: "https://generativelanguage.googleapis.com"
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+
+logging:
+  level:
+    root: info
+    com.example.orderjobabom: debug
+    org.springframework.web: debug
+    org.hibernate.SQL: debug
+    org.springframework.security: debug
+
