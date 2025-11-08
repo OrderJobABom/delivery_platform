@@ -1,14 +1,4 @@
 spring:
-  config:
-    activate:
-      on-profile: local
-    import:
-      - optional:file:local.env[.properties]
-      - optional:file:prod.env[.properties]
-
-  profiles:
-    active: local
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -53,6 +43,7 @@ spring:
         jwt:
           issuer-uri: https://keycloak6.sparta-project.xyz/realms/delivery
 
+
 # OPEN DOC API 설정
 springdoc:
   version: '1.0.0'
@@ -78,6 +69,11 @@ keycloak:
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
   admin-username: ${KEYCLOAK_ADMIN_USERNAME}
   admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    base-url: "https://generativelanguage.googleapis.com"
 
 toss:
   secret-key: ${TOSS_SECRET_KEY}

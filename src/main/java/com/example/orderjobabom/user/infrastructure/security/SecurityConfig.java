@@ -33,7 +33,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/v1/user/signup",
                                 "/v1/user/token",
-                                "/v1/user/token/refresh"
+                                "/v1/user/token/refresh",
+                                "/v1/gemini/generate"
                         ).permitAll()
 
                         .requestMatchers("/v1/reviews/**").authenticated()

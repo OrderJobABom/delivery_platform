@@ -1,32 +1,12 @@
-//package com.example.orderjobabom.order.application.service.command;
-//
-//import com.example.orderjobabom.global.infrastructure.persistence.Price;
-//import com.example.orderjobabom.menu.domain.Item;
-//import com.example.orderjobabom.menu.domain.ItemId;
-//import com.example.orderjobabom.menu.domain.ItemRepository;
-//import com.example.orderjobabom.order.domain.Order;
-//import com.example.orderjobabom.order.domain.OrderRepository;
-//import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderCreateRequestDTO;
-//import com.example.orderjobabom.order.presentation.dto.requestDTO.OrderItemRequestDTO;
-//import com.example.orderjobabom.order.presentation.dto.responseDTO.OrderResponseDTO;
-//import com.example.orderjobabom.user.domain.UserId;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.context.ActiveProfiles;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import java.util.List;
-//import java.util.UUID;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//
-//@SpringBootTest
-//@ActiveProfiles("test")
-//class OrderCommandServiceImplTest {
-//
+package com.example.orderjobabom.order.application.service.command;
+
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+@SpringBootTest
+@ActiveProfiles("test")
+class OrderCommandServiceImplTest {
+
 //    @Autowired
 //    private OrderCommandService orderCommandService;
 //
@@ -75,6 +55,6 @@
 //    }
 //
 //
-//
-//
-//}
+
+
+}

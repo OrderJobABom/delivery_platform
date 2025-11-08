@@ -2,8 +2,9 @@ package com.example.orderjobabom.store.application.service;
 
 import com.example.orderjobabom.store.domain.Store;
 import com.example.orderjobabom.store.domain.StoreCategory;
-import com.example.orderjobabom.store.domain.StoreId;
 import com.example.orderjobabom.store.domain.StoreRepository;
+import com.example.orderjobabom.store.domain.dto.StoreCreateDto;
+import com.example.orderjobabom.store.domain.service.StoreAddressService;
 import com.example.orderjobabom.store.presentation.dto.StoreRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StoreCreateService {
 
-    private  final StoreRepository repository;
+    private final StoreRepository repository;
+    private final StoreAddressService addressService;
 
     @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public StoreId create(StoreRequest req){
+    public StoreCreateDto create(StoreRequest req){
         // 회원정보
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UUID userId = UUID.fromString(jwt.getSubject());
@@ -39,6 +41,7 @@ public class StoreCreateService {
             startHour = tmp;
         }
         Store store = Store.builder()
+                .addressService(addressService)
                 .storeName(req.storeName())
                 .storeTel(req.storeTel())
                 .address(req.storeAddress())
@@ -52,6 +55,8 @@ public class StoreCreateService {
 
         repository.save(store);
 
-        return store.getId();
+        return StoreCreateDto.builder()
+                .storeId(store.getId())
+                .build();
     }
 }

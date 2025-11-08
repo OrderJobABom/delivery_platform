@@ -1,7 +1,6 @@
 package com.example.orderjobabom.store.domain;
 
-//import com.example.orderjobabom.global.infrastructure.persistence.BaseUserEntity;
-
+import com.example.orderjobabom.global.infrastructure.persistence.BaseEntity;
 import com.example.orderjobabom.global.infrastructure.persistence.Price;
 import com.example.orderjobabom.global.presentation.exception.FailException;
 import com.example.orderjobabom.menu.domain.Item;
@@ -14,6 +13,7 @@ import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import com.example.orderjobabom.store.domain.exception.StoreNotEditableException;
 import com.example.orderjobabom.store.domain.exception.StoreNotFoundException;
 import com.example.orderjobabom.store.domain.service.StoreAddressService;
+import com.example.orderjobabom.store.infrastructure.persistence.converter.StaffConverter;
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import com.example.orderjobabom.user.domain.UserId;
 import jakarta.persistence.*;
@@ -25,8 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -34,7 +36,7 @@ import java.util.*;
 @Table(name = "P_STORE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class Store {
+public class Store extends BaseEntity {
 
     @EmbeddedId
     private StoreId id;
@@ -42,8 +44,8 @@ public class Store {
     @Embedded
     private Owner owner;
 
-    @Transient
-    private Set<Staff> staffs;
+    @Convert(converter = StaffConverter.class)
+    private Set<Staff> staffs; // 직원들
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="P_STORE_CATEGORY", joinColumns = @JoinColumn(name="store_id"))
@@ -77,17 +79,20 @@ public class Store {
         this.operatingInfo = new OperatingInfo(startHour, endHour, weekdays);
         this.owner = new Owner(userId, userName);
         setCategories(categories);
+
+        List<Double> coords = addressService.getCoordinate(address); // 주소 -> 좌표
+        this.address = new StoreAddress(address, coords.get(0), coords.get(1));
     }
 
     private void setCategories(List<StoreCategory> categories) {
         if (categories == null || categories.isEmpty()) return;
 
-        this.categories = categories.stream().distinct().toList();
+        this.categories = categories.stream().distinct().collect(Collectors.toCollection(ArrayList::new));
     }
 
 
     public void delete() {
-//        deletedAt = LocalDateTime.now();
+        deletedAt = LocalDateTime.now();
     }
 
     /**
@@ -101,16 +106,18 @@ public class Store {
     }
 
     public void addCategory(Category category, boolean active) {
-        categories = Objects.requireNonNullElseGet(categories, ArrayList::new);
+        categories = toModifiableList(categories);
         categories.add(new StoreCategory(category, active));
-        categories = categories.stream().distinct().toList();
+        categories = categories.stream().distinct().collect(Collectors.toCollection(ArrayList::new));
     }
 
     // Item 생성
-    public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions) {
+    public Item createItem(Category category, Price price, String name, ItemStatus itemStatus, Stock stock, List<ItemOption> itemOptions, MenuAiRecommend aiRecommend) {
         if (category != null && !categoryExists(category)) {
             throw new FailException(StoreErrorCode.CATEGORY_NOT_FOUND);
         }
+
+        name = aiRecommend == null? name : aiRecommend.getMenu(category, name);
 
         return Item.builder()
                 .storeId(id)
@@ -132,7 +139,7 @@ public class Store {
         if (this.categories == null || categories.isEmpty()) return;
 
 
-        this.categories = this.categories.stream().filter(c -> !categories.contains(c.getCategory())).toList();
+        this.categories = this.categories.stream().filter(c -> !categories.contains(c.getCategory())).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public boolean categoryExists(Category category) {
@@ -229,4 +236,20 @@ public class Store {
         return item.updateItem(dto);
     }
 
+
+    public void emptyCategory() {
+
+
+    }
+
+    /**
+     * 불변 리스트 -> 변경 가능 리스트로 변환
+     *
+     * @param items
+     * @return
+     * @param <T>
+     */
+    private <T> List<T> toModifiableList(List<T> items) {
+        return items == null? new  ArrayList<>(): new ArrayList<>(items);
+    }
 }
