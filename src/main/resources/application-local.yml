@@ -15,24 +15,26 @@ spring:
         default_batch_fetch_size: 100
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: ${KEYCLOAK.CLIENT_ID}
-            client-secret: ${KEYCLOAK.CLIENT_SECRET}
-            authorization-grant-type: password
-            scope:
-              - openid
-              - profile
-              - email
-        provider:
-          keycloak:
+  spring:
+    security:
+      oauth2:
+        client:
+          registration:
+            keycloak:
+              client-id: ${KEYCLOAK_CLIENT_ID}
+              client-secret: ${KEYCLOAK_CLIENT_SECRET}
+              authorization-grant-type: authorization_code
+              redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+              scope:
+                - openid
+                - profile
+                - email
+          provider:
+            keycloak:
+              issuer-uri: https://keycloak6.sparta-project.xyz/realms/delivery
+        resourceserver:
+          jwt:
             issuer-uri: https://keycloak6.sparta-project.xyz/realms/delivery
-      resourceserver:
-        jwt:
-          issuer-uri: https://keycloak6.sparta-project.xyz/realms/delivery
 
 
 # OPEN DOC API 설정
@@ -65,3 +67,15 @@ gemini:
   api:
     key: ${GEMINI_API_KEY}
     base-url: "https://generativelanguage.googleapis.com"
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+
+logging:
+  level:
+    root: info
+    com.example.orderjobabom: debug
+    org.springframework.web: debug
+    org.hibernate.SQL: debug
+    org.springframework.security: debug
+

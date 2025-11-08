@@ -19,7 +19,8 @@ public class SwaggerConfig {
                 .group("user-api")
                 .displayName("회원 API")
                 .pathsToMatch("/v1/user/**")
-                .pathsToExclude("/v1/order/**", "/v1/admin/**", "/v1/reviews/**")
+                .pathsToExclude("/v1/orders/**", "/v1/admin/**", "/v1/reviews/**",
+                        "/v1/payments/**", "/v1/storeItem/**")
                 .build();
     }
 
@@ -30,7 +31,8 @@ public class SwaggerConfig {
                 .group("admin-api")
                 .displayName("관리자 API")
                 .pathsToMatch("/v1/admin/**")
-                .pathsToExclude("/v1/user/**", "/v1/order/**", "/v1/reviews/**")
+                .pathsToExclude("/v1/user/**", "/v1/orders/**", "/v1/reviews/**",
+                        "/v1/payments/**", "/v1/storeItem/**")
                 .build();
     }
 
@@ -40,8 +42,9 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("order-api")
                 .displayName("주문 API")
-                .pathsToMatch("/v1/order/**")
-                .pathsToExclude("/v1/user/**", "/v1/admin/**", "/v1/reviews/**")
+                .pathsToMatch("/v1/orders/**")
+                .pathsToExclude("/v1/user/**", "/v1/admin/**", "/v1/reviews/**",
+                        "/v1/payments/**", "/v1/storeItem/**")
                 .build();
     }
 
@@ -52,10 +55,36 @@ public class SwaggerConfig {
                 .group("review-api")
                 .displayName("리뷰 API")
                 .pathsToMatch("/v1/reviews/**")
-                .pathsToExclude("/v1/user/**", "/v1/order/**", "/v1/admin/**")
+                .pathsToExclude("/v1/user/**", "/v1/orders/**", "/v1/admin/**",
+                        "/v1/payments/**", "/v1/storeItem/**")
                 .build();
     }
 
+    // 결제 API
+    @Bean
+    public GroupedOpenApi paymentApi() {
+        return GroupedOpenApi.builder()
+                .group("payment-api")
+                .displayName("결제 API")
+                .pathsToMatch("/v1/payments/**")
+                .pathsToExclude("/v1/user/**", "/v1/orders/**", "/v1/admin/**",
+                        "/v1/reviews/**", "/v1/storeItem/**")
+                .build();
+    }
+
+    // 매장 API (새로 추가)
+    @Bean
+    public GroupedOpenApi storeApi() {
+        return GroupedOpenApi.builder()
+                .group("store-api")
+                .displayName("매장 API")
+                .pathsToMatch("/v1/storeItem/**")
+                .pathsToExclude("/v1/user/**", "/v1/orders/**", "/v1/admin/**",
+                        "/v1/reviews/**", "/v1/payments/**")
+                .build();
+    }
+
+    // 공통 OpenAPI 설정 (JWT 보안 등)
     @Bean
     public OpenAPI openAPI() {
         SecurityScheme bearerAuth = new SecurityScheme()

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>Toss 결제 테스트</title>
+    <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 100px;">
+<h2>결제 테스트 페이지</h2>
+
+<p>아래 버튼을 클릭하면 Toss 결제가 실행됩니다.</p>
+
+<button
+        id="payment-button"
+        style="
+        background-color: #0066ff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+      "
+>
+    결제하기
+</button>
+
+<script>
+
+    const paymentButton = document.getElementById("payment-button");
+
+    paymentButton.addEventListener("click", async () => {
+        const orderId = "0f546bd5-f382-4926-92d9-dcb3d3b0dde5";
+        const amount = 1689;
+
+        // 결제 금액 임시 저장 (Spring이 세션에 저장함)
+        await fetch("/v1/payments/saveAmount", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
+            },
+            body: JSON.stringify({ orderId, amount }),
+        });
+
+
+        // Toss 결제창 호출
+        const tossPayments = TossPayments("test_ck_ORzdMaqN3wnMbxvbnqqg85AkYXQG"); // 테스트용 클라이언트 키
+
+        tossPayments
+            .requestPayment("카드", {
+                amount,
+                orderId,
+                orderName: "김민수님의 주문 결제 테스트",
+                successUrl: "http://localhost:8080/success.html",
+                failUrl: "http://localhost:8080/fail.html",
+            })
+            .catch((error) => {
+                console.error("❌ 결제 요청 실패:", error);
+            });
+    });
+</script>
+</body>
+</html>
