@@ -54,6 +54,9 @@ dependencies {
 
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
     annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 }
 
 tasks.named('test') {
@@ -63,7 +66,7 @@ tasks.named('test') {
 // =======================
 // QueryDSL 설정
 // =======================
-def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+def querydslDir = layout.buildDirectory.dir("querydsl").get().asFile
 
 sourceSets {
     main.java.srcDirs += [ querydslDir ]

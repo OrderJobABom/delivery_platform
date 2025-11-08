@@ -3,6 +3,7 @@ package com.example.orderjobabom.user.infrastructure.security;
 import com.example.orderjobabom.user.infrastructure.keycloak.KeycloakClientRoleConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -26,11 +27,8 @@ public class SecurityConfig {
                         // Swagger & Docs 공개 허용
                         .requestMatchers(
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/api-docs.html"
-                        ).permitAll()
-
+                                "/v3/api-docs/**"
+                        ).authenticated()
                         // 토큰 관련 요청은 인증 불필요 (회원가입, 로그인, 토큰 재발급)
                         .requestMatchers(
                                 "/v1/user/signup",
@@ -49,7 +47,7 @@ public class SecurityConfig {
                         ).authenticated()
 
                         // 관리자 API (승인 관련)
-                        .requestMatchers("/v1/admin/approvals/pending").hasRole("MASTER")
+                        .requestMatchers("/v1/admin/approvals/pending").hasAnyRole("MASTER", "MANAGER")
 
                         // 사장님 승인/강등 — MASTER, MANAGER 둘 다 가능
                         .requestMatchers(
@@ -69,7 +67,10 @@ public class SecurityConfig {
                         // 나머지는 임시로 허용
                         .anyRequest().permitAll()
                 )
-                .oauth2Login(oauth2 -> oauth2.disable())
+                // Keycloak 로그인 플로우 활성화 (리다이렉트 가능)
+                .oauth2Login(Customizer.withDefaults())
+
+                // API 요청용 JWT 인증 (Bearer 토큰 기반)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(conv))
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
