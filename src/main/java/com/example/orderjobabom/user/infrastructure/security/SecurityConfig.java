@@ -3,7 +3,6 @@ package com.example.orderjobabom.user.infrastructure.security;
 import com.example.orderjobabom.user.infrastructure.keycloak.KeycloakClientRoleConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -12,7 +11,7 @@ import org.springframework.security.oauth2.server.resource.web.access.BearerToke
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true) // 메서드 권한(@PreAuthorize) 활성화
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Bean
@@ -24,15 +23,13 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger & Docs 공개 허용
+                        // Swagger는 로그인 안 해도 접근 가능하게 (문서 열람용)
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
-                        ).authenticated()
-                        .requestMatchers(
-                                "/swagger-ui/**"
                         ).permitAll()
-                        // 토큰 관련 요청은 인증 불필요 (회원가입, 로그인, 토큰 재발급)
+
+                        // 회원가입/토큰 관련은 공개
                         .requestMatchers(
                                 "/v1/user/signup",
                                 "/v1/user/token",
@@ -40,40 +37,36 @@ public class SecurityConfig {
                                 "/v1/gemini/generate"
                         ).permitAll()
 
-                        .requestMatchers("/v1/reviews/**").authenticated()
-
-                        // 사용자 보호 API — 인증(토큰) 필요
+                        // 보호된 API
                         .requestMatchers(
                                 "/v1/user/profile/**",
                                 "/v1/user/password/**",
-                                "/v1/user/owner/**"
+                                "/v1/user/owner/**",
+                                "/v1/reviews/**"
                         ).authenticated()
 
-                        // 관리자 API (승인 관련)
+                        // 관리자 권한별 접근 제어
                         .requestMatchers("/v1/admin/approvals/pending").hasAnyRole("MASTER", "MANAGER")
-
-                        // 사장님 승인/강등 — MASTER, MANAGER 둘 다 가능
                         .requestMatchers(
                                 "/v1/admin/approvals/approve/owner/**",
                                 "/v1/admin/approvals/demote/owner/**"
                         ).hasAnyRole("MASTER", "MANAGER")
-
-                        // 매니저 승인/강등 — MASTER만 가능
                         .requestMatchers(
                                 "/v1/admin/approvals/approve/manager/**",
                                 "/v1/admin/approvals/demote/manager/**"
                         ).hasRole("MASTER")
-
-                        // 유저 조회 — MASTER, MANAGER 둘 다 가능
                         .requestMatchers("/v1/admin/users/**").hasAnyRole("MASTER", "MANAGER")
 
-                        // 나머지는 임시로 허용
+                        // 나머지 임시 허용
                         .anyRequest().permitAll()
                 )
-                // Keycloak 로그인 플로우 활성화 (리다이렉트 가능)
-                .oauth2Login(Customizer.withDefaults())
 
-                // API 요청용 JWT 인증 (Bearer 토큰 기반)
+                // 로그인 성공 시 Swagger UI로 이동
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/swagger-ui/index.html", true)
+                )
+
+                // JWT 리소스 서버 설정 (API용 Bearer 토큰 인증)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(conv))
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
