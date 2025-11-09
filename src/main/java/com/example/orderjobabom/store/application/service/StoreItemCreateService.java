@@ -16,7 +16,6 @@ import com.example.orderjobabom.store.domain.exception.StoreErrorCode;
 import com.example.orderjobabom.store.presentation.dto.ItemRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +33,7 @@ public class StoreItemCreateService {
     private final MenuAiRecommend aiRecommend;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
+//    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
     public ItemDto create(UUID storeId, ItemRequest itemRequest) {
         StoreId id = StoreId.of(storeId);
 
