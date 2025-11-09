@@ -1,25 +1,41 @@
 package com.example.orderjobabom.global.infrastructure.gemini;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-public record GeminiResponseDto(List<Candidate> candidates) {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record GeminiResponseDto(
+        List<Candidate> candidates
+) {
 
-    public static record Candidate(GeminiRequestDto.Content content) {}
-    public static record Content(List<GeminiRequestDto.Part> parts, String role) {}
-    public static record Part(String text){}
 
-    /**
-     * 응답 DTO에서 첫 번째 텍스트 응답을 추출합니다.
-     * 응답이 없거나 비어있는 경우 빈 문자열을 반환합니다.
-     */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static record Candidate(
+            Content content // 'content' 필드만 추출
+    ) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static record Content(
+            List<Part> parts, // 'parts' 배열 추출
+            String role      // 'role' 필드 (예: "model")
+    ) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static record Part(
+            String text // 우리가 원하는 최종 텍스트
+    ) {}
+
     public String getFirstCandidateText() {
-        if (candidates == null || candidates.isEmpty() ||
-                candidates.get(0).content() == null ||
-                candidates.get(0).content().parts() == null ||
-                candidates.get(0).content().parts().isEmpty()) {
+        try {
+            // 중첩 구조를 안전하게 탐색하여 text를 반환
+            return candidates.get(0)
+                    .content()
+                    .parts()
+                    .get(0)
+                    .text();
+        } catch (Exception e) {
+            // 빈 문자열 반환
             return "";
         }
-        return candidates.get(0).content().parts().get(0).text();
     }
-
 }

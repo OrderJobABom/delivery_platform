@@ -2,7 +2,6 @@ package com.example.orderjobabom.global.infrastructure.gemini;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,7 +15,7 @@ public class GeminiService {
     private final WebClient geminiWebClient;
     private final GeminiProperties geminiProperties;
 
-    private static final String API_URL_TEMPLATE = "/v1beta/models/gemini-pro:generateContent?key=%s";
+    private static final String API_URL_TEMPLATE = "/v1beta/models/gemini-2.5-flash:generateContent?key=%s";
 
     public Mono<PromptResponse> getGeminiResponse(String prompt) {
 
