@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter
 @Builder
 public record OrderItemRequestDTO(
         UUID itemId,
