@@ -30,8 +30,8 @@
     const paymentButton = document.getElementById("payment-button");
 
     paymentButton.addEventListener("click", async () => {
-        const orderId = "0f546bd5-f382-4926-92d9-dcb3d3b0dde5";
-        const amount = 1689;
+        const orderId = "9e4a1777-2a53-4594-a7bc-3218b8f5ec58";
+        const amount = 20000;
 
         // 결제 금액 임시 저장 (Spring이 세션에 저장함)
         await fetch("/v1/payments/saveAmount", {
