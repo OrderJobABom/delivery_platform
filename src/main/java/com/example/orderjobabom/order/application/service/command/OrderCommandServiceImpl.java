@@ -59,7 +59,7 @@ public class OrderCommandServiceImpl implements OrderCommandService {
     // Item 엔티티를 조회해서 OrderItem 객체 생성
     private OrderItem createOrderItem(OrderItemRequestDTO orderItemRequest) {
 
-        Item item = itemRepository.findById(ItemId.of(orderItemRequest.getItemId()))
+        Item item = itemRepository.findById(ItemId.of(orderItemRequest.itemId()))
                 .orElseThrow(() -> new FailException(OrderErrorCode.ORDER_ITEM_NOT_FOUND));
 
 
@@ -70,8 +70,8 @@ public class OrderCommandServiceImpl implements OrderCommandService {
                 .itemId(item.getId())
                 .itemName(item.getName())
                 .price(item.getPrice())
-                .count(orderItemRequest.getCount())
-                .totalPrice(item.getPrice().multiply(orderItemRequest.getCount()))
+                .count(orderItemRequest.count())
+                .totalPrice(item.getPrice().multiply(orderItemRequest.count()))
                 .build();
 
     }
