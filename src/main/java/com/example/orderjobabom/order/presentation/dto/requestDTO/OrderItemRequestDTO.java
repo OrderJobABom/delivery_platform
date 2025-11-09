@@ -5,11 +5,9 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-@Getter
 @Builder
-public class OrderItemRequestDTO {
-
-    private UUID itemId;
-    private int price;
-    private int count;
+public record OrderItemRequestDTO(
+        UUID itemId,
+        int price,
+        int count) {
 }

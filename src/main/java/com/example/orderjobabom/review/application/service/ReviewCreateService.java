@@ -1,6 +1,6 @@
 package com.example.orderjobabom.review.application.service;
 
-import com.example.orderjobabom.global.presentation.event.Events;
+import com.example.orderjobabom.global.infrastructure.event.Events;
 import com.example.orderjobabom.order.domain.OrderId;
 import com.example.orderjobabom.review.domain.*;
 import com.example.orderjobabom.review.domain.exception.ReviewAlreadyDeletedException;
@@ -8,7 +8,6 @@ import com.example.orderjobabom.review.domain.exception.ReviewAlreadyExistsExcep
 import com.example.orderjobabom.store.domain.Store;
 import com.example.orderjobabom.store.domain.StoreId;
 import com.example.orderjobabom.store.domain.StoreRepository;
-import com.example.orderjobabom.user.domain.UserId;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

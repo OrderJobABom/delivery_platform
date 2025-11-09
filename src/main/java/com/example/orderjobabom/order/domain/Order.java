@@ -14,7 +14,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -88,12 +87,14 @@ public class Order extends BaseEntity {
             throw new FailException(OrderErrorCode.ORDER_CANNOT_BE_CANCELED);
         }
 
+        this.orderStatus = OrderStatus.ORDER_CANCEL;
+
         // 5분 지난 경우
-        if (LocalDateTime.now().isAfter(this.getCreatedAt().plusMinutes(5))) {
+        if (createdAt.isAfter(createdAt.plusMinutes(5L))) {
             throw new FailException(OrderErrorCode.ORDER_CANCEL_TIME_OUT);
         }
+        this.orderStatus = OrderStatus.ORDER_REFUND;
 
-        this.orderStatus = OrderStatus.ORDER_CANCEL;
     }
 
     //  조리 시작 (= 배달 준비 중)
